@@ -14,6 +14,8 @@ import "@openzeppelin/contracts-ethereum-package/contracts/math/SafeMath.sol";
 import "@openzeppelin/contracts-ethereum-package/contracts/ownership/Ownable.sol";
 import "@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/IERC20.sol";
 
+import "@chainlink/contracts/src/v0.5/interfaces/AggregatorV3Interface.sol";
+
 import "./RariGovernanceToken.sol";
 import "./interfaces/IRariFundManager.sol";
 
@@ -225,6 +227,19 @@ contract RariGovernanceTokenDistributor is Initializable, Ownable {
         storeRgtDistributedPerRft();
         for (uint256 i = 0; i < 3; i++) _fundBalancesCache[i] = rariFundManagers[i].getFundBalance();
     }
+    
+    /**
+     * @dev Chainlink price feed for ETH/USD.
+     */
+    AggregatorV3Interface private _ethUsdPriceFeed;
+
+    /**
+     * @dev Retrives the latest ETH/USD price.
+     */
+    function getEthUsdPrice() internal view returns (uint256) {
+        (, int256 price, , , ) = _ethUsdPriceFeed.latestRoundData();
+        return price >= 0 ? uint256(price) : 0;
+    }
 
     /**
      * @dev Stores the latest quantity of RGT distributed per RFT for all pools (so speeds can be updated immediately afterwards).
@@ -233,14 +248,15 @@ contract RariGovernanceTokenDistributor is Initializable, Ownable {
         uint256 rgtDistributed = getRgtDistributed(block.number);
         uint256 rgtToDistribute = rgtDistributed.sub(_rgtDistributedAtLastSpeedUpdate);
         if (rgtToDistribute <= 0) return;
+        uint256 ethFundBalanceUsd = _fundBalancesCache[2] > 0 ? _fundBalancesCache[2].mul(getEthUsdPrice()).div(1e8) : 0;
         uint256 fundBalanceSum = 0;
-        for (uint256 i = 0; i < 3; i++) fundBalanceSum = fundBalanceSum.add(_fundBalancesCache[i]);
+        for (uint256 i = 0; i < 3; i++) fundBalanceSum = fundBalanceSum.add(i == 2 ? ethFundBalanceUsd : _fundBalancesCache[i]);
         if (fundBalanceSum <= 0) return;
         _rgtDistributedAtLastSpeedUpdate = rgtDistributed;
 
         for (uint256 i = 0; i < 3; i++) {
             uint256 totalSupply = rariFundTokens[i].totalSupply();
-            if (totalSupply > 0) _rgtPerRftAtLastSpeedUpdate[i] = _rgtPerRftAtLastSpeedUpdate[i].add(rgtToDistribute.mul(_fundBalancesCache[i]).div(fundBalanceSum).mul(1e18).div(totalSupply));
+            if (totalSupply > 0) _rgtPerRftAtLastSpeedUpdate[i] = _rgtPerRftAtLastSpeedUpdate[i].add(rgtToDistribute.mul(i == 2 ? ethFundBalanceUsd : _fundBalancesCache[i]).div(fundBalanceSum).mul(1e18).div(totalSupply));
         }
     }
 
@@ -252,12 +268,13 @@ contract RariGovernanceTokenDistributor is Initializable, Ownable {
         uint256 rgtDistributed = getRgtDistributed(block.number);
         uint256 rgtToDistribute = rgtDistributed.sub(_rgtDistributedAtLastSpeedUpdate);
         if (rgtToDistribute <= 0) return _rgtPerRftAtLastSpeedUpdate[uint8(pool)];
+        uint256 ethFundBalanceUsd = _fundBalancesCache[2] > 0 ? _fundBalancesCache[2].mul(getEthUsdPrice()).div(1e8) : 0;
         uint256 fundBalanceSum = 0;
-        for (uint256 i = 0; i < 3; i++) fundBalanceSum = fundBalanceSum.add(_fundBalancesCache[i]);
+        for (uint256 i = 0; i < 3; i++) fundBalanceSum = fundBalanceSum.add(i == 2 ? ethFundBalanceUsd : _fundBalancesCache[i]);
         if (fundBalanceSum <= 0) return _rgtPerRftAtLastSpeedUpdate[uint8(pool)];
         uint256 totalSupply = rariFundTokens[uint8(pool)].totalSupply();
         if (totalSupply <= 0) return _rgtPerRftAtLastSpeedUpdate[uint8(pool)];
-        return _rgtPerRftAtLastSpeedUpdate[uint8(pool)].add(rgtToDistribute.mul(_fundBalancesCache[uint8(pool)]).div(fundBalanceSum).mul(1e18).div(totalSupply));
+        return _rgtPerRftAtLastSpeedUpdate[uint8(pool)].add(rgtToDistribute.mul(uint8(pool) == 2 ? ethFundBalanceUsd : _fundBalancesCache[uint8(pool)]).div(fundBalanceSum).mul(1e18).div(totalSupply));
     }
 
     /**
@@ -267,13 +284,14 @@ contract RariGovernanceTokenDistributor is Initializable, Ownable {
         uint256 rgtDistributed = getRgtDistributed(block.number);
         uint256 rgtToDistribute = rgtDistributed.sub(_rgtDistributedAtLastSpeedUpdate);
         if (rgtToDistribute <= 0) return _rgtPerRftAtLastSpeedUpdate;
+        uint256 ethFundBalanceUsd = _fundBalancesCache[2] > 0 ? _fundBalancesCache[2].mul(getEthUsdPrice()).div(1e8) : 0;
         uint256 fundBalanceSum = 0;
-        for (uint256 i = 0; i < 3; i++) fundBalanceSum = fundBalanceSum.add(_fundBalancesCache[i]);
+        for (uint256 i = 0; i < 3; i++) fundBalanceSum = fundBalanceSum.add(i == 2 ? ethFundBalanceUsd : _fundBalancesCache[i]);
         if (fundBalanceSum <= 0) return _rgtPerRftAtLastSpeedUpdate;
 
         for (uint256 i = 0; i < 3; i++) {
             uint256 totalSupply = rariFundTokens[i].totalSupply();
-            rgtPerRftByPool[i] = totalSupply > 0 ? _rgtPerRftAtLastSpeedUpdate[i].add(rgtToDistribute.mul(_fundBalancesCache[i]).div(fundBalanceSum).mul(1e18).div(totalSupply)) : _rgtPerRftAtLastSpeedUpdate[i];
+            rgtPerRftByPool[i] = totalSupply > 0 ? _rgtPerRftAtLastSpeedUpdate[i].add(rgtToDistribute.mul(i == 2 ? ethFundBalanceUsd : _fundBalancesCache[i]).div(fundBalanceSum).mul(1e18).div(totalSupply)) : _rgtPerRftAtLastSpeedUpdate[i];
         }
     }
 

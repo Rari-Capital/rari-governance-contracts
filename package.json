@@ -34,6 +34,7 @@
     "truffle": "^5.1.45"
   },
   "dependencies": {
+    "@chainlink/contracts": "0.0.9",
     "@openzeppelin/contracts-ethereum-package": "^2.5.0",
     "@openzeppelin/upgrades": "^2.8.0"
   }
