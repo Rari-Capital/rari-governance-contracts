@@ -20,9 +20,9 @@ The following document contains instructions on common usage of the Rari Governa
 
 ## **Claiming RGT**
 
-* **Claims all unclaimed RGT:** `uint256 RariGovernanceTokenDistributor.claimRgt(address holder)` claims all unclaimed RGT earned by `holder` in all pools (and returns the quantity of RGT claimed).
+* **Claim all unclaimed RGT:** `uint256 RariGovernanceTokenDistributor.claimRgt(address holder)` claims all unclaimed RGT earned by `holder` in all pools (and returns the quantity of RGT claimed).
     * Call `_claimRgt(address holder)` to not revert if no RGT is available to claim.
-* **Claims unclaimed RGT from one pool:** `uint256 RariGovernanceTokenDistributor.claimRgt(address holder, RariPool pool)` claims all unclaimed RGT earned by `holder` in `pool` (and returns the quantity of RGT claimed).
+* **Claim unclaimed RGT from one pool:** `uint256 RariGovernanceTokenDistributor.claimRgt(address holder, RariPool pool)` claims all unclaimed RGT earned by `holder` in `pool` (and returns the quantity of RGT claimed).
     * Call `_claimRgt(address holder, RariPool pool)` to not revert if no RGT is available to claim.
 
 ## **Get Unclaimed RGT**
