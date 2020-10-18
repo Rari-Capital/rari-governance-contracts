@@ -236,7 +236,7 @@ contract RariGovernanceTokenDistributor is Initializable, Ownable {
     /**
      * @dev Retrives the latest ETH/USD price.
      */
-    function getEthUsdPrice() internal view returns (uint256) {
+    function getEthUsdPrice() public view returns (uint256) {
         (, int256 price, , , ) = _ethUsdPriceFeed.latestRoundData();
         return price >= 0 ? uint256(price) : 0;
     }
