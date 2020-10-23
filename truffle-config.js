@@ -33,6 +33,7 @@ module.exports = {
       provider: function() {
         var keys = [process.env.LIVE_DEPLOYER_PRIVATE_KEY];
         if (process.env.LIVE_POOL_OWNER_PRIVATE_KEY) keys.push(process.env.LIVE_POOL_OWNER_PRIVATE_KEY);
+        if (process.env.LIVE_UPGRADE_GOVERNANCE_OWNER_PRIVATE_KEY) keys.push(process.env.LIVE_UPGRADE_GOVERNANCE_OWNER_PRIVATE_KEY);
         return new HDWalletProvider(keys, process.env.LIVE_WEB3_PROVIDER_URL);
       },
       network_id: 1,

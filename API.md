@@ -46,72 +46,53 @@ Returns the total supply of RGT (scaled by 1e18). The total supply should always
 
 ## **Claiming RGT**
 
-### `uint256 RariGovernanceTokenDistributor.claimRgt(address holder)`
+### `uint256 RariGovernanceTokenDistributor.claimRgt(uint256 amount)`
 
-Claims all unclaimed RGT earned by `holder` in all pools.
-
-* Parameters:
-    * `holder` (address) - The holder of RSPT, RYPT, or REPT whose RGT is to be claimed.
-* Return value: The quantity of RGT claimed.
-
-### `uint256 RariGovernanceTokenDistributor.claimRgt(address holder, RariPool pool)`
-
-Claims all unclaimed RGT earned by `holder` in `pool`.
+Claims `amount` unclaimed RGT earned by `msg.sender` via liquidity mining across all pools.
 
 * Parameters:
-    * `holder` (address) - The holder of RSPT, RYPT, or REPT whose RGT is to be claimed.
-    * `pool` (RariGovernanceTokenDistributor.RariPool) - The Rari pool from which to claim RGT.
-* Return value: The quantity of RGT claimed.
+    * `amount`: The amount of RGT to claim.
 
-### `uint256 RariGovernanceTokenDistributor._claimRgt(address holder, RariPool pool)`
+### `uint256 RariGovernanceTokenDistributor.claimAllRgt()`
 
-Claims all unclaimed RGT earned by `holder` in `pool` (without reverting if no RGT is available to claim).
+Claims all unclaimed RGT earned by `msg.sender` via liquidity mining across all pools.
 
-* Parameters:
-    * `holder` (address) - The holder of RSPT, RYPT, or REPT whose RGT is to be claimed.
-    * `pool` (RariGovernanceTokenDistributor.RariPool) - The Rari pool from which to claim RGT.
-* Return value: The quantity of RGT claimed.
-
-### `uint256 RariGovernanceTokenDistributor._claimRgt(address holder)`
-
-Claims all unclaimed RGT earned by `holder` in all pools (without reverting if no RGT is available to claim).
-
-* Parameters:
-    * `holder` (address) - The holder of RSPT, RYPT, or REPT whose RGT is to be claimed.
 * Return value: The quantity of RGT claimed.
 
 ## **Get Unclaimed RGT**
 
 ### `uint256 RariGovernanceTokenDistributor.getUnclaimedRgt(address holder)`
 
-Returns the quantity of unclaimed RGT earned by `holder` in all pools.
+Returns the quantity of unclaimed RGT earned by `holder` via liquidity mining across all pools.
 
 * Parameters:
     * `holder` (address) - The holder of RSPT, RYPT, or REPT.
+* Return value: The quantity of unclaimed RGT.
 
-### `uint256 RariGovernanceTokenDistributor.getUnclaimedRgt(address holder, RariPool pool)`
+## **Claim Fees**
 
-Returns the quantity of unclaimed RGT earned by `holder` in `pool`.
+### `uint256 getPublicRgtClaimFee(uint256 blockNumber)`
+
+Returns the public RGT claim fee for users during liquidity mining (scaled by 1e18) at `blockNumber`.
 
 * Parameters:
-    * `holder` (address) - The holder of RSPT, RYPT, or REPT.
-    * `pool` (RariGovernanceTokenDistributor.RariPool) - The Rari pool to filter by.
+    * `blockNumber` (uint256) - The block number to check.
 
 ## **Distribution Constants**
 
 ### `uint256 RariGovernanceTokenDistributor.distributionStartBlock()`
 
-The starting block of the distribution period.
+The starting block of the distribution period: `11094200`.
 
 * In the starting block, no RGT has been distributed: RGT will be available starting after 1 block has passed and will be rewarded for every block that passes, including last block in the distribution period.
 
 ### `uint256 RariGovernanceTokenDistributor.distributionPeriod()`
 
-The length of the distribution period in blocks: `345600`.
+The length of the distribution period in blocks: `390000`.
 
 ### `uint256 RariGovernanceTokenDistributor.distributionEndBlock()`
 
-The final block of the distribution period.
+The final block of the distribution period: `11484200`.
 
 ### `uint256 RariGovernanceTokenDistributor.finalRgtDistribution()`
 

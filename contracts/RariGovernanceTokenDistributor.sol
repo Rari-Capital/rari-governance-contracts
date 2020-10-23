@@ -34,7 +34,7 @@ contract RariGovernanceTokenDistributor is Initializable, Ownable {
         Ownable.initialize(msg.sender);
         require(fundManagers.length == 3 && fundTokens.length == 3, "Fund manager and fund token array lengths must be equal to 3.");
         distributionStartBlock = startBlock;
-        distributionEndBlock = distributionStartBlock + distributionPeriod;
+        distributionEndBlock = distributionStartBlock + DISTRIBUTION_PERIOD;
         rariFundManagers = fundManagers;
         rariFundTokens = fundTokens;
     }
@@ -55,21 +55,12 @@ contract RariGovernanceTokenDistributor is Initializable, Ownable {
     event Enabled();
 
     /**
-     * @dev Disables primary functionality of this RariGovernanceTokenDistributor so contract(s) can be upgraded.
+     * @dev Disables/enables primary functionality of this RariGovernanceTokenDistributor so contract(s) can be upgraded.
      */
-    function disable() external onlyOwner {
-        require(!disabled, "Governance token distributor already disabled.");
-        disabled = true;
-        emit Disabled();
-    }
-
-    /**
-     * @dev Enables primary functionality of this RariGovernanceTokenDistributor once contract(s) are upgraded.
-     */
-    function enable() external onlyOwner {
-        require(disabled, "Governance token distributor already enabled.");
-        disabled = false;
-        emit Enabled();
+    function setDisabled(bool _disabled) external onlyOwner {
+        require(_disabled != disabled, "No change to enabled/disabled status.");
+        disabled = _disabled;
+        if (_disabled) emit Disabled(); else emit Enabled();
     }
 
     /**
@@ -149,12 +140,12 @@ contract RariGovernanceTokenDistributor is Initializable, Ownable {
     /**
      * @notice Length in blocks of the distribution period.
      */
-    uint256 public constant distributionPeriod = 345600;
+    uint256 public constant DISTRIBUTION_PERIOD = 390000;
 
     /**
      * @notice Total and final quantity of all RGT to be distributed by the end of the period.
      */
-    uint256 public constant finalRgtDistribution = 8750000e18;
+    uint256 public constant FINAL_RGT_DISTRIBUTION = 8750000e18;
 
     /**
      * @notice Returns the amount of RGT earned via liquidity mining at the given `blockNumber`.
@@ -163,12 +154,12 @@ contract RariGovernanceTokenDistributor is Initializable, Ownable {
      */
     function getRgtDistributed(uint256 blockNumber) public view returns (uint256) {
         if (blockNumber <= distributionStartBlock) return 0;
-        if (blockNumber >= distributionEndBlock) return finalRgtDistribution;
+        if (blockNumber >= distributionEndBlock) return FINAL_RGT_DISTRIBUTION;
         uint256 blocks = blockNumber.sub(distributionStartBlock);
-        if (blocks < 86400) return uint256(1625e18).mul(blocks ** 2).div(3483648).add(uint256(18125e18).mul(blocks).div(3024));
-        if (blocks < 172800) return uint256(45625e18).mul(blocks).div(756).sub(uint256(125e18).mul(blocks ** 2).div(870912)).sub(uint256(1000000e18).div(7));
-        if (blocks < 259200) return uint256(125e18).mul(blocks ** 2).div(3483648).add(uint256(39250000e18).div(7)).sub(uint256(11875e18).mul(blocks).div(3024));
-        return uint256(125e18).mul(blocks ** 2).div(3483648).add(uint256(34750000e18).div(7)).sub(uint256(625e18).mul(blocks).div(432));
+        if (blocks < 86400) return uint256(1e18).mul(blocks ** 2).div(2730).add(uint256(1450e18).mul(blocks).div(273));
+        if (blocks < 172800) return uint256(14600e18).mul(blocks).div(273).sub(uint256(2e18).mul(blocks ** 2).div(17745)).sub(uint256(1000000e18).div(7));
+        if (blocks < 259200) return uint256(1e18).mul(blocks ** 2).div(35490).add(uint256(39250000e18).div(7)).sub(uint256(950e18).mul(blocks).div(273));
+        return uint256(1e18).mul(blocks ** 2).div(35490).add(uint256(34750000e18).div(7)).sub(uint256(50e18).mul(blocks).div(39));
     }
 
     /**
@@ -189,7 +180,7 @@ contract RariGovernanceTokenDistributor is Initializable, Ownable {
     /**
      * @dev Maps RariPool indexes to holder addresses to the quantity of RGT distributed per RSPT/RYPT/REPT at their last claim.
      */
-    mapping (address => uint256)[3] _rgtPerRftAtLastClaim;
+    mapping (address => uint256)[3] _rgtPerRftAtLastDistribution;
 
     /**
      * @dev Throws if the distribution period has ended.
@@ -261,23 +252,6 @@ contract RariGovernanceTokenDistributor is Initializable, Ownable {
     }
 
     /**
-     * @dev Gets RGT distributed per RFT for `pool`.
-     * @param pool The pool to query.
-     */
-    function getRgtDistributedPerRft(RariPool pool) internal view returns (uint256) {
-        uint256 rgtDistributed = getRgtDistributed(block.number);
-        uint256 rgtToDistribute = rgtDistributed.sub(_rgtDistributedAtLastSpeedUpdate);
-        if (rgtToDistribute <= 0) return _rgtPerRftAtLastSpeedUpdate[uint8(pool)];
-        uint256 ethFundBalanceUsd = _fundBalancesCache[2] > 0 ? _fundBalancesCache[2].mul(getEthUsdPrice()).div(1e8) : 0;
-        uint256 fundBalanceSum = 0;
-        for (uint256 i = 0; i < 3; i++) fundBalanceSum = fundBalanceSum.add(i == 2 ? ethFundBalanceUsd : _fundBalancesCache[i]);
-        if (fundBalanceSum <= 0) return _rgtPerRftAtLastSpeedUpdate[uint8(pool)];
-        uint256 totalSupply = rariFundTokens[uint8(pool)].totalSupply();
-        if (totalSupply <= 0) return _rgtPerRftAtLastSpeedUpdate[uint8(pool)];
-        return _rgtPerRftAtLastSpeedUpdate[uint8(pool)].add(rgtToDistribute.mul(uint8(pool) == 2 ? ethFundBalanceUsd : _fundBalancesCache[uint8(pool)]).div(fundBalanceSum).mul(1e18).div(totalSupply));
-    }
-
-    /**
      * @dev Gets RGT distributed per RFT for all pools.
      */
     function getRgtDistributedPerRft() internal view returns (uint256[3] memory rgtPerRftByPool) {
@@ -296,51 +270,22 @@ contract RariGovernanceTokenDistributor is Initializable, Ownable {
     }
 
     /**
-     * @notice Returns the quantity of unclaimed RGT earned by `holder` in `pool`.
-     * @param holder The holder of RSPT, RYPT, or REPT.
-     * @param pool The Rari pool to filter by.
+     * @dev Maps holder addresses to the quantity of RGT distributed to each.
      */
-    function getUnclaimedRgt(address holder, RariPool pool) public view returns (uint256) {
-        // Get RFT balance of this holder
-        uint256 rftBalance = rariFundTokens[uint8(pool)].balanceOf(holder);
-        if (rftBalance <= 0) return 0;
-
-        // Get unclaimed RGT
-        return getRgtDistributedPerRft(pool).sub(_rgtPerRftAtLastClaim[uint8(pool)][holder]).mul(rftBalance).div(1e18);
-    }
+    mapping (address => uint256) _rgtDistributedByHolder;
 
     /**
-     * @notice Returns the quantity of unclaimed RGT earned by `holder` in all pools.
-     * @param holder The holder of RSPT, RYPT, or REPT.
+     * @dev Maps holder addresses to the quantity of RGT claimed by each.
      */
-    function getUnclaimedRgt(address holder) public view returns (uint256) {
-        // Get RGT distributed per RFT
-        uint256[3] memory rgtPerRftByPool = getRgtDistributedPerRft();
-
-        // Get unclaimed RGT
-        uint256 unclaimedRgt = 0;
-
-        for (uint256 i = 0; i < 3; i++) {
-            // Get RFT balance of this holder in this pool
-            uint256 rftBalance = rariFundTokens[i].balanceOf(holder);
-            if (rftBalance <= 0) continue;
-
-            // Add unclaimed RGT
-            unclaimedRgt += rgtPerRftByPool[i].sub(_rgtPerRftAtLastClaim[i][holder]).mul(rftBalance).div(1e18);
-        }
-
-        return unclaimedRgt;
-    }
-
-    event Claim(address holder, uint256 amount);
+    mapping (address => uint256) _rgtClaimedByHolder;
 
     /**
-     * @notice Claims all unclaimed RGT earned by `holder` in `pool` (without reverting if no RGT is available to claim).
-     * @param holder The holder of RSPT, RYPT, or REPT whose RGT is to be claimed.
-     * @param pool The Rari pool from which to claim RGT.
-     * @return The quantity of RGT claimed.
+     * @dev Distributes all undistributed RGT earned by `holder` in `pool` (without reverting if no RGT is available to distribute).
+     * @param holder The holder of RSPT, RYPT, or REPT whose RGT is to be distributed.
+     * @param pool The Rari pool for which to distribute RGT.
+     * @return The quantity of RGT distributed.
      */
-    function _claimRgt(address holder, RariPool pool) public enabled returns (uint256) {
+    function distributeRgt(address holder, RariPool pool) external enabled returns (uint256) {
         // Get RFT balance of this holder
         uint256 rftBalance = rariFundTokens[uint8(pool)].balanceOf(holder);
         if (rftBalance <= 0) return 0;
@@ -348,68 +293,43 @@ contract RariGovernanceTokenDistributor is Initializable, Ownable {
         // Store RGT distributed per RFT
         storeRgtDistributedPerRft();
 
-        // Get unclaimed RGT
-        uint256 unclaimedRgt = _rgtPerRftAtLastSpeedUpdate[uint8(pool)].sub(_rgtPerRftAtLastClaim[uint8(pool)][holder]).mul(rftBalance).div(1e18);
-        if (unclaimedRgt <= 0) return 0;
+        // Get undistributed RGT
+        uint256 undistributedRgt = _rgtPerRftAtLastSpeedUpdate[uint8(pool)].sub(_rgtPerRftAtLastDistribution[uint8(pool)][holder]).mul(rftBalance).div(1e18);
+        if (undistributedRgt <= 0) return 0;
 
-        // Claim RGT
-        _rgtPerRftAtLastClaim[uint8(pool)][holder] = _rgtPerRftAtLastSpeedUpdate[uint8(pool)];
-        require(rariGovernanceToken.transfer(holder, unclaimedRgt), "Failed to transfer RGT from liquidity mining reserve.");
-        emit Claim(holder, unclaimedRgt);
-        return unclaimedRgt;
+        // Distribute RGT
+        _rgtPerRftAtLastDistribution[uint8(pool)][holder] = _rgtPerRftAtLastSpeedUpdate[uint8(pool)];
+        _rgtDistributedByHolder[holder] = _rgtDistributedByHolder[holder].add(undistributedRgt);
+        return undistributedRgt;
     }
 
     /**
-     * @notice Claims all unclaimed RGT earned by `holder` in `pool`.
-     * @param holder The holder of RSPT, RYPT, or REPT whose RGT is to be claimed.
-     * @param pool The Rari pool from which to claim RGT.
-     * @return The quantity of RGT claimed.
+     * @dev Distributes all undistributed RGT earned by `holder` in all pools (without reverting if no RGT is available to distribute).
+     * @param holder The holder of RSPT, RYPT, and/or REPT whose RGT is to be distributed.
+     * @return The quantity of RGT distributed.
      */
-    function claimRgt(address holder, RariPool pool) external enabled returns (uint256) {
-        uint256 claimedRgt = _claimRgt(holder, pool);
-        require(claimedRgt > 0, "Unclaimed RGT not greater than 0.");
-        return claimedRgt;
-    }
-
-    /**
-     * @notice Claims all unclaimed RGT earned by `holder` in all pools (without reverting if no RGT is available to claim).
-     * @param holder The holder of RSPT, RYPT, and/or REPT whose RGT is to be claimed.
-     * @return The quantity of RGT claimed.
-     */
-    function _claimRgt(address holder) public enabled returns (uint256) {
+    function distributeRgt(address holder) internal enabled returns (uint256) {
         // Store RGT distributed per RFT
         storeRgtDistributedPerRft();
 
-        // Get unclaimed RGT
-        uint256 unclaimedRgt = 0;
+        // Get undistributed RGT
+        uint256 undistributedRgt = 0;
 
         for (uint256 i = 0; i < 3; i++) {
             // Get RFT balance of this holder in this pool
             uint256 rftBalance = rariFundTokens[i].balanceOf(holder);
             if (rftBalance <= 0) continue;
 
-            // Add unclaimed RGT
-            unclaimedRgt += _rgtPerRftAtLastSpeedUpdate[i].sub(_rgtPerRftAtLastClaim[i][holder]).mul(rftBalance).div(1e18);
+            // Add undistributed RGT
+            undistributedRgt += _rgtPerRftAtLastSpeedUpdate[i].sub(_rgtPerRftAtLastDistribution[i][holder]).mul(rftBalance).div(1e18);
         }
 
-        if (unclaimedRgt <= 0) return 0;
+        if (undistributedRgt <= 0) return 0;
 
-        // Claim RGT
-        for (uint256 i = 0; i < 3; i++) if (rariFundTokens[i].balanceOf(holder) > 0) _rgtPerRftAtLastClaim[i][holder] = _rgtPerRftAtLastSpeedUpdate[i];
-        require(rariGovernanceToken.transfer(holder, unclaimedRgt), "Failed to transfer RGT from liquidity mining reserve.");
-        emit Claim(holder, unclaimedRgt);
-        return unclaimedRgt;
-    }
-
-    /**
-     * @notice Claims all unclaimed RGT earned by `holder` in all pools.
-     * @param holder The holder of RSPT, RYPT, and/or REPT whose RGT is to be claimed.
-     * @return The quantity of RGT claimed.
-     */
-    function claimRgt(address holder) external enabled returns (uint256) {
-        uint256 claimedRgt = _claimRgt(holder);
-        require(claimedRgt > 0, "Unclaimed RGT not greater than 0.");
-        return claimedRgt;
+        // Add undistributed to distributed
+        for (uint256 i = 0; i < 3; i++) if (rariFundTokens[i].balanceOf(holder) > 0) _rgtPerRftAtLastDistribution[i][holder] = _rgtPerRftAtLastSpeedUpdate[i];
+        _rgtDistributedByHolder[holder] = _rgtDistributedByHolder[holder].add(undistributedRgt);
+        return undistributedRgt;
     }
 
     /**
@@ -420,7 +340,97 @@ contract RariGovernanceTokenDistributor is Initializable, Ownable {
     function beforeFirstPoolTokenTransferIn(address holder, RariPool pool) external enabled {
         require(rariFundTokens[uint8(pool)].balanceOf(holder) == 0, "Pool token balance is not equal to 0.");
         storeRgtDistributedPerRft();
-        _rgtPerRftAtLastClaim[uint8(pool)][holder] = _rgtPerRftAtLastSpeedUpdate[uint8(pool)];
+        _rgtPerRftAtLastDistribution[uint8(pool)][holder] = _rgtPerRftAtLastSpeedUpdate[uint8(pool)];
+    }
+
+    /**
+     * @dev Returns the quantity of undistributed RGT earned by `holder` via liquidity mining across all pools.
+     * @param holder The holder of RSPT, RYPT, or REPT.
+     * @return The quantity of unclaimed RGT.
+     */
+    function getUndistributedRgt(address holder) internal view returns (uint256) {
+        // Get RGT distributed per RFT
+        uint256[3] memory rgtPerRftByPool = getRgtDistributedPerRft();
+
+        // Get undistributed RGT
+        uint256 undistributedRgt = 0;
+
+        for (uint256 i = 0; i < 3; i++) {
+            // Get RFT balance of this holder in this pool
+            uint256 rftBalance = rariFundTokens[i].balanceOf(holder);
+            if (rftBalance <= 0) continue;
+
+            // Add undistributed RGT
+            undistributedRgt += rgtPerRftByPool[i].sub(_rgtPerRftAtLastDistribution[i][holder]).mul(rftBalance).div(1e18);
+        }
+
+        return undistributedRgt;
+    }
+
+    /**
+     * @notice Returns the quantity of unclaimed RGT earned by `holder` via liquidity mining across all pools.
+     * @param holder The holder of RSPT, RYPT, or REPT.
+     * @return The quantity of unclaimed RGT.
+     */
+    function getUnclaimedRgt(address holder) external view returns (uint256) {
+        return _rgtDistributedByHolder[holder].sub(_rgtClaimedByHolder[holder]).add(getUndistributedRgt(holder));
+    }
+
+    /**
+     * @notice Returns the public RGT claim fee for users during liquidity mining (scaled by 1e18) at `blockNumber`.
+     */
+    function getPublicRgtClaimFee(uint256 blockNumber) public view returns (uint256) {
+        if (blockNumber <= distributionStartBlock) return 0.33e18;
+        if (blockNumber >= distributionEndBlock) return 0;
+        return uint256(0.33e18).mul(distributionEndBlock.sub(blockNumber)).div(DISTRIBUTION_PERIOD);
+    }
+
+    /**
+     * @dev Event emitted when `claimed` RGT is claimed by `holder`.
+     */
+    event Claim(address holder, uint256 claimed, uint256 transferred, uint256 burned);
+
+    /**
+     * @notice Claims `amount` unclaimed RGT earned by `msg.sender` in all pools.
+     * @param amount The amount of RGT to claim.
+     */
+    function claimRgt(uint256 amount) public enabled {
+        // Distribute RGT to holder
+        distributeRgt(msg.sender);
+
+        // Get unclaimed RGT
+        uint256 unclaimedRgt = _rgtDistributedByHolder[msg.sender].sub(_rgtClaimedByHolder[msg.sender]);
+        require(amount <= unclaimedRgt, "Claim amount cannot be greater than unclaimed RGT.");
+
+        // Claim RGT
+        uint256 burnRgt = amount.mul(getPublicRgtClaimFee(block.number)).div(1e18);
+        uint256 transferRgt = amount.sub(burnRgt);
+        _rgtClaimedByHolder[msg.sender] = _rgtClaimedByHolder[msg.sender].add(amount);
+        require(rariGovernanceToken.transfer(msg.sender, transferRgt), "Failed to transfer RGT from liquidity mining reserve.");
+        rariGovernanceToken.burn(burnRgt);
+        emit Claim(msg.sender, amount, transferRgt, burnRgt);
+    }
+
+    /**
+     * @notice Claims all unclaimed RGT earned by `msg.sender` in all pools.
+     * @return The quantity of RGT claimed.
+     */
+    function claimAllRgt() public enabled returns (uint256) {
+        // Distribute RGT to holder
+        distributeRgt(msg.sender);
+
+        // Get unclaimed RGT
+        uint256 unclaimedRgt = _rgtDistributedByHolder[msg.sender].sub(_rgtClaimedByHolder[msg.sender]);
+        require(unclaimedRgt > 0, "Unclaimed RGT not greater than 0.");
+
+        // Claim RGT
+        uint256 burnRgt = unclaimedRgt.mul(getPublicRgtClaimFee(block.number)).div(1e18);
+        uint256 transferRgt = unclaimedRgt.sub(burnRgt);
+        _rgtClaimedByHolder[msg.sender] = _rgtClaimedByHolder[msg.sender].add(unclaimedRgt);
+        require(rariGovernanceToken.transfer(msg.sender, transferRgt), "Failed to transfer RGT from liquidity mining reserve.");
+        rariGovernanceToken.burn(burnRgt);
+        emit Claim(msg.sender, unclaimedRgt, transferRgt, burnRgt);
+        return unclaimedRgt;
     }
 
     /**

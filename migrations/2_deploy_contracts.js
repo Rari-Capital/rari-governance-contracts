@@ -41,7 +41,7 @@ module.exports = async function(deployer, network, accounts) {
   var rariGovernanceTokenDistributor = await deployProxy(RariGovernanceTokenDistributor, [process.env.DISTRIBUTION_START_BLOCK, [process.env.POOL_STABLE_MANAGER_ADDRESS, process.env.POOL_YIELD_MANAGER_ADDRESS, process.env.POOL_ETHEREUM_MANAGER_ADDRESS], [process.env.POOL_STABLE_TOKEN_ADDRESS, process.env.POOL_YIELD_TOKEN_ADDRESS, process.env.POOL_ETHEREUM_TOKEN_ADDRESS]], { deployer, unsafeAllowCustomTypes: true });
 
   // Deploy rariGovernanceToken (passing in the address of RariGovernanceTokenDistributor)
-  var rariGovernanceToken = await deployProxy(RariGovernanceToken, [RariGovernanceTokenDistributor.address], { deployer });
+  var rariGovernanceToken = await deployProxy(RariGovernanceToken, [RariGovernanceTokenDistributor.address, ["live", "live-fork"].indexOf(network) >= 0 ? process.env.LIVE_GOVERNANCE_OWNER : process.env.DEVELOPMENT_ADDRESS], { deployer });
 
   // Connect RariGovernanceToken to RariGovernanceTokenDistributor
   await rariGovernanceTokenDistributor.setGovernanceToken(RariGovernanceToken.address);
@@ -61,7 +61,7 @@ module.exports = async function(deployer, network, accounts) {
   try {
     await rariYieldPoolToken.setGovernanceTokenDistributor(RariGovernanceTokenDistributor.address, ["live", "live-fork"].indexOf(network) < 0, { from: process.env.POOL_OWNER });
   } catch (error) {
-    if (["live", "live-fork"].indexOf(network) < 0 && error.message.indexOf("MinterRole: caller does not have the Minter role") >= 0) await rariStablePoolToken.setGovernanceTokenDistributor(RariGovernanceTokenDistributor.address, ["live", "live-fork"].indexOf(network) < 0);
+    if (["live", "live-fork"].indexOf(network) < 0 && error.message.indexOf("MinterRole: caller does not have the Minter role") >= 0) await rariYieldPoolToken.setGovernanceTokenDistributor(RariGovernanceTokenDistributor.address, ["live", "live-fork"].indexOf(network) < 0);
     else return console.error(error);
   }
   
@@ -70,14 +70,15 @@ module.exports = async function(deployer, network, accounts) {
   try {
     await rariEthereumPoolToken.setGovernanceTokenDistributor(RariGovernanceTokenDistributor.address, ["live", "live-fork"].indexOf(network) < 0, { from: process.env.POOL_OWNER });
   } catch (error) {
-    if (["live", "live-fork"].indexOf(network) < 0 && error.message.indexOf("MinterRole: caller does not have the Minter role") >= 0) await rariStablePoolToken.setGovernanceTokenDistributor(RariGovernanceTokenDistributor.address, ["live", "live-fork"].indexOf(network) < 0);
+    if (["live", "live-fork"].indexOf(network) < 0 && error.message.indexOf("MinterRole: caller does not have the Minter role") >= 0) await rariEthereumPoolToken.setGovernanceTokenDistributor(RariGovernanceTokenDistributor.address, ["live", "live-fork"].indexOf(network) < 0);
     else return console.error(error);
   }
 
   if (["live", "live-fork"].indexOf(network) >= 0) {
     // Live network: transfer ownership of deployed contracts from the deployer to the owner and send RGT to owner
+    await rariGovernanceToken.addPauser(process.env.LIVE_GOVERNANCE_OWNER);
+    await rariGovernanceToken.renouncePauser();
     await rariGovernanceTokenDistributor.transferOwnership(process.env.LIVE_GOVERNANCE_OWNER);
     await admin.transferProxyAdminOwnership(process.env.LIVE_GOVERNANCE_OWNER);
-    await rariGovernanceToken.transfer(process.env.LIVE_GOVERNANCE_OWNER, web3.utils.toBN(1250000).mul(web3.utils.toBN(1e18)));
   }
 };

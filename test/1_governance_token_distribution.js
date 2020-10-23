@@ -16,15 +16,52 @@ const IERC20 = artifacts.require("IERC20");
 function getRgtDistributed(blockNumber) {
   var startBlock = parseInt(process.env.DISTRIBUTION_START_BLOCK);
   if (blockNumber <= startBlock) return web3.utils.toBN(0);
-  if (blockNumber >= startBlock + 345600) return web3.utils.toBN(8750000).mul(web3.utils.toBN(1e18));
+  if (blockNumber >= startBlock + 390000) return web3.utils.toBN(8750000).mul(web3.utils.toBN(1e18));
   var blocks = blockNumber - startBlock;
-  if (blocks < 86400) return web3.utils.toBN("1625000000000000000000").mul(web3.utils.toBN(blocks).pow(web3.utils.toBN(2))).divn(3483648).add(web3.utils.toBN("18125000000000000000000").muln(blocks).divn(3024));
-  if (blocks < 172800) return web3.utils.toBN("45625000000000000000000").muln(blocks).divn(756).sub(web3.utils.toBN("125000000000000000000").mul(web3.utils.toBN(blocks).pow(web3.utils.toBN(2))).divn(870912)).sub(web3.utils.toBN("1000000000000000000000000").divn(7));
-  if (blocks < 259200) return web3.utils.toBN("125000000000000000000").mul(web3.utils.toBN(blocks).pow(web3.utils.toBN(2))).divn(3483648).add(web3.utils.toBN("39250000000000000000000000").divn(7)).sub(web3.utils.toBN("11875000000000000000000").muln(blocks).divn(3024));
-  return web3.utils.toBN("125000000000000000000").mul(web3.utils.toBN(blocks).pow(web3.utils.toBN(2))).divn(3483648).add(web3.utils.toBN("34750000000000000000000000").divn(7)).sub(web3.utils.toBN("625000000000000000000").muln(blocks).divn(432));
+  if (blocks < 6500 * 15)
+    return web3.utils.toBN(1e18).mul(web3.utils.toBN(blocks).pow(web3.utils.toBN(2))).divn(2730)
+      .add(web3.utils.toBN("1450000000000000000000").muln(blocks).divn(273));
+  if (blocks < 6500 * 30)
+    return web3.utils.toBN("14600000000000000000000").muln(blocks).divn(273)
+      .sub(web3.utils.toBN("2000000000000000000").mul(web3.utils.toBN(blocks).pow(web3.utils.toBN(2))).divn(17745))
+      .sub(web3.utils.toBN("1000000000000000000000000").divn(7));
+  if (blocks < 6500 * 45)
+    return web3.utils.toBN(1e18).mul(web3.utils.toBN(blocks).pow(web3.utils.toBN(2))).divn(35490)
+      .add(web3.utils.toBN("39250000000000000000000000").divn(7))
+      .sub(web3.utils.toBN("950000000000000000000").muln(blocks).divn(273));
+  return web3.utils.toBN(1e18).mul(web3.utils.toBN(blocks).pow(web3.utils.toBN(2))).divn(35490)
+    .add(web3.utils.toBN("34750000000000000000000000").divn(7))
+    .sub(web3.utils.toBN("50000000000000000000").muln(blocks).divn(39));
 }
 
 contract("RariGovernanceTokenDistributor", accounts => {
+  it("should have distributed the correct amount of tokens at each checkpoint", async () => {
+    let governanceTokenDistributorInstance = await RariGovernanceTokenDistributor.deployed();
+
+    // Test Solidity and JS
+    assert((await governanceTokenDistributorInstance.getRgtDistributed.call(parseInt(process.env.DISTRIBUTION_START_BLOCK))).isZero());
+    assert(getRgtDistributed(parseInt(process.env.DISTRIBUTION_START_BLOCK)).isZero());
+
+    for (const [blocks, expected] of [
+      [6500, "50000"],
+      [6500 * 15, "4000000"],
+      [6500 * (15 + 1), "4200000"],
+      [6500 * 30, "6000000"],
+      [6500 * (30 + 1), "6050000"],
+      [6500 * 45, "7000000"],
+      [6500 * (45 + 1), "7100000"]
+    ]) {
+      var rgtExpected = web3.utils.toBN(expected).mul(web3.utils.toBN(1e18));
+      var rgtDistributedSolidity = await governanceTokenDistributorInstance.getRgtDistributed.call(parseInt(process.env.DISTRIBUTION_START_BLOCK) + blocks);
+      assert(rgtDistributedSolidity.gte(rgtExpected.muln(999999).divn(1000000)) && rgtDistributedSolidity.lte(rgtExpected.muln(1000001).divn(1000000)));
+      var rgtDistributedJs = getRgtDistributed(parseInt(process.env.DISTRIBUTION_START_BLOCK) + blocks);
+      assert(rgtDistributedJs.gte(rgtExpected.muln(999999).divn(1000000)) && rgtDistributedJs.lte(rgtExpected.muln(1000001).divn(1000000)));
+    }
+
+    assert((await governanceTokenDistributorInstance.getRgtDistributed.call(parseInt(process.env.DISTRIBUTION_START_BLOCK) + (6500 * 60))).eq(web3.utils.toBN("8750000").mul(web3.utils.toBN(1e18))));
+    assert(getRgtDistributed(parseInt(process.env.DISTRIBUTION_START_BLOCK) + (6500 * 60)).eq(web3.utils.toBN("8750000").mul(web3.utils.toBN(1e18))));
+  });
+
   it("should distribute tokens evenly across pools", async () => {
     let governanceTokenInstance = await RariGovernanceToken.deployed();
     let governanceTokenDistributorInstance = await RariGovernanceTokenDistributor.deployed();

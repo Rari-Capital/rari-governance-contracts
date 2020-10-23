@@ -20,22 +20,23 @@ The following document contains instructions on common usage of the Rari Governa
 
 ## **Claiming RGT**
 
-* **Claim all unclaimed RGT:** `uint256 RariGovernanceTokenDistributor.claimRgt(address holder)` claims all unclaimed RGT earned by `holder` in all pools (and returns the quantity of RGT claimed).
-    * Call `_claimRgt(address holder)` to not revert if no RGT is available to claim.
-* **Claim unclaimed RGT from one pool:** `uint256 RariGovernanceTokenDistributor.claimRgt(address holder, RariPool pool)` claims all unclaimed RGT earned by `holder` in `pool` (and returns the quantity of RGT claimed).
-    * Call `_claimRgt(address holder, RariPool pool)` to not revert if no RGT is available to claim.
+* **Claim unclaimed RGT:** `uint256 RariGovernanceTokenDistributor.claimRgt(address holder, uint256 amount)` claims `amount` unclaimed RGT earned by `holder`.
+* **Claim all unclaimed RGT:** `uint256 RariGovernanceTokenDistributor.claimAllRgt(address holder)` claims all unclaimed RGT earned by `holder` (and returns the quantity of RGT claimed).
 
 ## **Get Unclaimed RGT**
 
-* **Get all unclaimed RGT:** `uint256 RariGovernanceTokenDistributor.getUnclaimedRgt(address holder)` returns the quantity of unclaimed RGT earned by `holder` in all pools.
-* **Get unclaimed RGT from one pool:** `uint256 RariGovernanceTokenDistributor.getUnclaimedRgt(address holder, RariPool pool)` returns the quantity of unclaimed RGT earned by `holder` in `pool`.
+* **Get all unclaimed RGT:** `uint256 RariGovernanceTokenDistributor.getUnclaimedRgt(address holder)` returns the quantity of unclaimed RGT earned by `holder`.
+
+## **Claim Fees**
+
+* **Get RGT claim fee:** `uint256 RariGovernanceTokenDistributor.getPublicRgtClaimFee(uint256 blockNumber)` returns the public RGT claim fee for users during liquidity mining (scaled by 1e18) at `blockNumber`.
 
 ## **Distribution Constants**
 
-* **Distribution start block number:** `uint256 RariGovernanceTokenDistributor.distributionStartBlock()` returns the starting block number of RGT distributions.
-* **Distribution period length:** `uint256 RariGovernanceTokenDistributor.distributionPeriod()` returns `345600`.
-* **Distribution end block number:** `uint256 RariGovernanceTokenDistributor.distributionEndBlock()` returns the ending block number of RGT distributions.
-* **Total RGT (to be) distributed via liquidity mining:** `uint256 RariGovernanceTokenDistributor.finalRgtDistribution()` returns `8750000e18`.
+* **Distribution start block number:** `uint256 RariGovernanceTokenDistributor.distributionStartBlock()` returns `11094200`.
+* **Distribution period length:** `uint256 RariGovernanceTokenDistributor.DISTRIBUTION_PERIOD()` returns `390000`.
+* **Distribution end block number:** `uint256 RariGovernanceTokenDistributor.distributionEndBlock()` returns `11484200`.
+* **Total RGT (to be) distributed via liquidity mining:** `uint256 RariGovernanceTokenDistributor.FINAL_RGT_DISTRIBUTION()` returns `8750000e18`.
 
 ## **Total RGT Distributed**
 
@@ -46,5 +47,5 @@ The following document contains instructions on common usage of the Rari Governa
 
 * Refresh all distribution speeds: `RariGovernanceTokenDistributor.refreshDistributionSpeeds()` updates RGT distribution speeds for each pool.
     * Warning: This function uses a large quantity of gas (around 1.5 million on average).
-* Refresh some pools' distribution speeds: `RariGovernanceTokenDistributor.refreshDistributionSpeeds(RariPool pool)` updates RGT distribution speeds for each pool given the `pool` whose balance should be refreshed.
+* Refresh one pool's distribution speeds: `RariGovernanceTokenDistributor.refreshDistributionSpeeds(RariPool pool)` updates RGT distribution speeds for each pool given the `pool` whose balance should be refreshed.
     * Warning: This function uses a large quantity of gas (around 500k on average).

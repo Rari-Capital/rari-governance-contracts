@@ -26,6 +26,10 @@ To install all our dependencies: `npm install`
 
 ## Testing the contracts
 
+Make sure to configure the following `.env` variables:
+
+    DISTRIBUTION_START_BLOCK=11094200
+
 To test liquidity mining via an existing Rari Stable Pool `v2.1.0`, Yield Pool `v1.0.0`, and Ethereum Pool `v1.0.0`, the following `.env` variables must be configured:
 
     POOL_OWNER=0x10dB6Bce3F2AE1589ec91A872213DAE59697967a
@@ -47,6 +51,10 @@ To run automated tests on the contracts on your private mainnet fork, run `npm t
 As an alterative to manually configuring existing pool manager and token addresses, `npm test` and `npm migrate-dev` can automatically run Ganache and deploy the Rari Stable Pool, Yield Pool, and/or Ethereum Pool to the `development` network (and configure the pool manager and token addresses environment variables) before deploying Rari Governance if the following variables in `.env` are set: `DEVELOPMENT_POOL_STABLE_CONTRACTS_DIRECTORY`, `DEVELOPMENT_POOL_STABLE_CONTRACTS_DIRECTORY`, and/or `DEVELOPMENT_POOL_STABLE_CONTRACTS_DIRECTORY`.
 
 ## Live deployment
+
+Make sure to configure the following `.env` variables:
+
+    DISTRIBUTION_START_BLOCK=11094200
 
 The following `.env` variables must be configured for liquidity mining via the existing Rari Stable Pool `v2.1.0`, Yield Pool `v1.0.0`, and Ethereum Pool `v1.0.0`:
 
