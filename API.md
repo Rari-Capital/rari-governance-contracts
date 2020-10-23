@@ -104,7 +104,7 @@ The total and final quantity of all RGT to be distributed by the end of the peri
 
 Returns the amount of RGT earned via liquidity mining at the given `blockNumber`.
 
-* [See this graph for a visualization of RGT distributed via liquidity mining vs. blocks since distribution started.](https://www.desmos.com/calculator/2yvnflg4ir)
+* [See this graph for a visualization of RGT distributed via liquidity mining vs. blocks since distribution started.](https://www.desmos.com/calculator/zkmlmxcavc)
 
 * Parameters:
     * `blockNumber` (uint256) - The block number to check.
