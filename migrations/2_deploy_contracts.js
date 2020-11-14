@@ -22,7 +22,7 @@ module.exports = async function(deployer, network, accounts) {
   }
 
   if (parseInt(process.env.UPGRADE_FROM_LAST_VERSION) > 0) {
-    // Upgrade from v2.0.0 (only modifying RariFundManager v2.0.0 and RariFundToken v2.0.0) to v2.1.0
+    // Upgrade from v1.0.0 (only modifying RariGovernanceTokenDistributor v1.0.0) to v1.1.0
     if (!process.env.UPGRADE_GOVERNANCE_TOKEN_ADDRESS) return console.error("UPGRADE_GOVERNANCE_TOKEN_ADDRESS is missing for upgrade");
     if (!process.env.UPGRADE_GOVERNANCE_TOKEN_DISTRIBUTOR_ADDRESS) return console.error("UPGRADE_GOVERNANCE_TOKEN_DISTRIBUTOR_ADDRESS is missing for upgrade");
     if (!process.env.UPGRADE_GOVERNANCE_OWNER_ADDRESS) return console.error("UPGRADE_GOVERNANCE_OWNER_ADDRESS is missing for upgrade");
