@@ -37,7 +37,6 @@ module.exports = async function(deployer, network, accounts) {
     if (["live", "live-fork"].indexOf(network) < 0) {
       var rariGovernanceToken = await RariGovernanceToken.at(process.env.UPGRADE_GOVERNANCE_TOKEN_ADDRESS);
       await rariGovernanceToken.addPauser(process.env.DEVELOPMENT_ADDRESS, { from: process.env.UPGRADE_GOVERNANCE_OWNER_ADDRESS });
-      await rariGovernanceToken.transferOwnership(process.env.DEVELOPMENT_ADDRESS, { from: process.env.UPGRADE_GOVERNANCE_OWNER_ADDRESS });
       await rariGovernanceTokenDistributor.transferOwnership(process.env.DEVELOPMENT_ADDRESS, { from: process.env.UPGRADE_GOVERNANCE_OWNER_ADDRESS });
       RariGovernanceTokenDistributor.class_defaults.from = process.env.DEVELOPMENT_ADDRESS;
       // await admin.transferProxyAdminOwnership(process.env.DEVELOPMENT_ADDRESS, { from: process.env.UPGRADE_GOVERNANCE_OWNER_ADDRESS });
