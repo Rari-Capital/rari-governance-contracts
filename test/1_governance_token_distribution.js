@@ -46,7 +46,7 @@ function getPublicRgtClaimFee(blockNumber) {
 
 contract("RariGovernanceTokenDistributor", accounts => {
   it("should have distributed the correct amount of tokens at each checkpoint", async () => {
-    let governanceTokenDistributorInstance = await (parseInt(process.env.UPGRADE_FROM_LAST_VERSION) > 0 ? RariGovernanceTokenDistributor.at(process.env.UPGRADE_GOVERNANCE_TOKEN_DISTRIBUTOR_ADDRESS) : RariGovernanceTokenDistributor.deployed());
+    let governanceTokenDistributorInstance = await RariGovernanceTokenDistributor.deployed();
 
     // Test Solidity and JS
     assert((await governanceTokenDistributorInstance.getRgtDistributed.call(parseInt(process.env.DISTRIBUTION_START_BLOCK))).isZero());
@@ -73,8 +73,8 @@ contract("RariGovernanceTokenDistributor", accounts => {
   });
 
   it("should distribute tokens evenly across pools", async () => {
-    let governanceTokenInstance = await (parseInt(process.env.UPGRADE_FROM_LAST_VERSION) > 0 ? RariGovernanceToken.at(process.env.UPGRADE_GOVERNANCE_TOKEN_ADDRESS) : RariGovernanceToken.deployed());
-    let governanceTokenDistributorInstance = await (parseInt(process.env.UPGRADE_FROM_LAST_VERSION) > 0 ? RariGovernanceTokenDistributor.at(process.env.UPGRADE_GOVERNANCE_TOKEN_DISTRIBUTOR_ADDRESS) : RariGovernanceTokenDistributor.deployed());
+    let governanceTokenInstance = await RariGovernanceToken.deployed();
+    let governanceTokenDistributorInstance = await RariGovernanceTokenDistributor.deployed();
     let stablePoolManagerInstance = await IRariFundManager.at(process.env.POOL_STABLE_MANAGER_ADDRESS);
     let stablePoolTokenInstance = await IRariFundToken.at(process.env.POOL_STABLE_TOKEN_ADDRESS);
     let yieldPoolManagerInstance = await IRariFundManager.at(process.env.POOL_YIELD_MANAGER_ADDRESS);
