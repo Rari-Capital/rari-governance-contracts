@@ -24,7 +24,7 @@ function getPrivateRgtClaimFee(timestamp) {
 contract("RariGovernanceTokenVesting", accounts => {
   it("should vest private token distributions", async () => {
     let governanceTokenInstance = await (parseInt(process.env.UPGRADE_FROM_LAST_VERSION) > 0 ? RariGovernanceToken.at(process.env.UPGRADE_GOVERNANCE_TOKEN_ADDRESS) : RariGovernanceToken.deployed());
-    let governanceTokenVestingInstance = await RariGovernanceTokenVesting.deployed();
+    let governanceTokenVestingInstance = await (parseInt(process.env.UPGRADE_FROM_LAST_VERSION) > 0 ? RariGovernanceTokenVesting.at(process.env.UPGRADE_GOVERNANCE_TOKEN_VESTING_ADDRESS) : RariGovernanceTokenVesting.deployed());
 
     // Set private RGT allocations
     var rgtAllocation = web3.utils.toBN(1e18);
