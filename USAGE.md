@@ -43,9 +43,10 @@ The following document contains instructions on common usage of the Rari Governa
 * **Get total RGT distributed:** `uint256 RariGovernanceTokenDistributor.getRgtDistributed(uint256 blockNumber)` returns the amount of RGT earned via liquidity mining at the given `blockNumber`.
     * [See this graph for a visualization of RGT distributed via liquidity mining vs. blocks since distribution started.](https://www.desmos.com/calculator/2yvnflg4ir)
 
-## **Refresh Distribution Speeds**
+## **Distribution Speeds**
 
 * Refresh all distribution speeds: `RariGovernanceTokenDistributor.refreshDistributionSpeeds()` updates RGT distribution speeds for each pool.
     * Warning: This function uses a large quantity of gas (around 1.5 million on average).
 * Refresh one pool's distribution speeds: `RariGovernanceTokenDistributor.refreshDistributionSpeeds(RariPool pool)` updates RGT distribution speeds for each pool given the `pool` whose balance should be refreshed.
     * Warning: This function uses a large quantity of gas (around 500k on average).
+* Get ETH/USD price: `uint256 RariGovernanceTokenDistributor.getEthUsdPrice()` returns the latest ETH/USD price (scaled by 1e8) from Chainlink used to calculate RGT distribution speeds.

@@ -7,7 +7,7 @@
  * This license is liable to change at any time at the sole discretion of David Lucid of Rari Capital, Inc.
  */
 
-const { deployProxy, admin } = require('@openzeppelin/truffle-upgrades');
+const { deployProxy, upgradeProxy, admin } = require('@openzeppelin/truffle-upgrades');
 require('dotenv').config();
 
 var RariGovernanceToken = artifacts.require("RariGovernanceToken");
@@ -21,64 +21,86 @@ module.exports = async function(deployer, network, accounts) {
     if (!process.env.LIVE_GOVERNANCE_OWNER) return console.error("LIVE_GOVERNANCE_OWNER is missing for live deployment");
   }
 
-  if (!process.env.POOL_OWNER) return console.error("POOL_OWNER is missing for deployment");
-  if (!process.env.POOL_STABLE_MANAGER_ADDRESS || process.env.POOL_STABLE_MANAGER_ADDRESS == "0x0000000000000000000000000000000000000000") return console.error("POOL_STABLE_MANAGER_ADDRESS missing for deployment");
-  if (!process.env.POOL_STABLE_TOKEN_ADDRESS || process.env.POOL_STABLE_TOKEN_ADDRESS == "0x0000000000000000000000000000000000000000") return console.error("POOL_STABLE_TOKEN_ADDRESS missing for deployment");
-  if (!process.env.POOL_YIELD_MANAGER_ADDRESS || process.env.POOL_YIELD_MANAGER_ADDRESS == "0x0000000000000000000000000000000000000000") return console.error("POOL_YIELD_MANAGER_ADDRESS missing for deployment");
-  if (!process.env.POOL_YIELD_TOKEN_ADDRESS || process.env.POOL_YIELD_TOKEN_ADDRESS == "0x0000000000000000000000000000000000000000") return console.error("POOL_YIELD_TOKEN_ADDRESS missing for deployment");
-  if (!process.env.POOL_ETHEREUM_MANAGER_ADDRESS || process.env.POOL_ETHEREUM_MANAGER_ADDRESS == "0x0000000000000000000000000000000000000000") return console.error("POOL_ETHEREUM_MANAGER_ADDRESS missing for deployment");
-  if (!process.env.POOL_ETHEREUM_TOKEN_ADDRESS || process.env.POOL_ETHEREUM_TOKEN_ADDRESS == "0x0000000000000000000000000000000000000000") return console.error("POOL_ETHEREUM_TOKEN_ADDRESS missing for deployment");
-  if (!process.env.DISTRIBUTION_START_BLOCK) return console.error("DISTRIBUTION_START_BLOCK missing for deployment");
+  if (parseInt(process.env.UPGRADE_FROM_LAST_VERSION) > 0) {
+    // Upgrade from v1.0.0 (only modifying RariGovernanceTokenDistributor v1.0.0) to v1.1.0
+    if (!process.env.UPGRADE_GOVERNANCE_TOKEN_ADDRESS) return console.error("UPGRADE_GOVERNANCE_TOKEN_ADDRESS is missing for upgrade");
+    if (!process.env.UPGRADE_GOVERNANCE_TOKEN_DISTRIBUTOR_ADDRESS) return console.error("UPGRADE_GOVERNANCE_TOKEN_DISTRIBUTOR_ADDRESS is missing for upgrade");
+    if (!process.env.UPGRADE_GOVERNANCE_OWNER_ADDRESS) return console.error("UPGRADE_GOVERNANCE_OWNER_ADDRESS is missing for upgrade");
+    if (["live", "live-fork"].indexOf(network) >= 0 && !process.env.LIVE_UPGRADE_GOVERNANCE_OWNER_PRIVATE_KEY) return console.error("LIVE_UPGRADE_GOVERNANCE_OWNER_PRIVATE_KEY is missing for live upgrade");
 
-  var rariStablePoolManager = await IRariFundManager.at(process.env.POOL_STABLE_MANAGER_ADDRESS);
-  if (await rariStablePoolManager.rariFundToken.call() !== process.env.POOL_STABLE_TOKEN_ADDRESS) return console.error("Mismatch between POOL_STABLE_TOKEN_ADDRESS and RariFundToken set on POOL_STABLE_MANAGER_ADDRESS");
-  var rariYieldPoolManager = await IRariFundManager.at(process.env.POOL_YIELD_MANAGER_ADDRESS);
-  if (await rariYieldPoolManager.rariFundToken.call() !== process.env.POOL_YIELD_TOKEN_ADDRESS) return console.error("Mismatch between POOL_YIELD_TOKEN_ADDRESS and RariFundToken set on POOL_YIELD_MANAGER_ADDRESS");
-  var rariEthereumPoolManager = await IRariFundManager.at(process.env.POOL_ETHEREUM_MANAGER_ADDRESS);
-  if (await rariEthereumPoolManager.rariFundToken.call() !== process.env.POOL_ETHEREUM_TOKEN_ADDRESS) return console.error("Mismatch between POOL_ETHEREUM_TOKEN_ADDRESS and RariFundToken set on POOL_ETHEREUM_MANAGER_ADDRESS");
-  
-  // Deploy RariGovernanceTokenDistributor (passing in pool managers and tokens)
-  var rariGovernanceTokenDistributor = await deployProxy(RariGovernanceTokenDistributor, [process.env.DISTRIBUTION_START_BLOCK, [process.env.POOL_STABLE_MANAGER_ADDRESS, process.env.POOL_YIELD_MANAGER_ADDRESS, process.env.POOL_ETHEREUM_MANAGER_ADDRESS], [process.env.POOL_STABLE_TOKEN_ADDRESS, process.env.POOL_YIELD_TOKEN_ADDRESS, process.env.POOL_ETHEREUM_TOKEN_ADDRESS]], { deployer, unsafeAllowCustomTypes: true });
+    // Upgrade RariGovernanceTokenDistributor
+    RariGovernanceTokenDistributor.class_defaults.from = process.env.UPGRADE_GOVERNANCE_OWNER_ADDRESS;
+    var rariGovernanceTokenDistributor = await upgradeProxy(process.env.UPGRADE_GOVERNANCE_TOKEN_DISTRIBUTOR_ADDRESS, RariGovernanceTokenDistributor, { deployer, unsafeAllowCustomTypes: true });
+    await rariGovernanceTokenDistributor.setEthUsdPriceFeed({ from: process.env.UPGRADE_GOVERNANCE_OWNER_ADDRESS });
 
-  // Deploy rariGovernanceToken (passing in the address of RariGovernanceTokenDistributor)
-  var rariGovernanceToken = await deployProxy(RariGovernanceToken, [RariGovernanceTokenDistributor.address, ["live", "live-fork"].indexOf(network) >= 0 ? process.env.LIVE_GOVERNANCE_OWNER : process.env.DEVELOPMENT_ADDRESS], { deployer });
+    // Development network: transfer ownership of contracts to development address, set development address as rebalancer, and set all currencies to accepted
+    if (["live", "live-fork"].indexOf(network) < 0) {
+      var rariGovernanceToken = await RariGovernanceToken.at(process.env.UPGRADE_GOVERNANCE_TOKEN_ADDRESS);
+      await rariGovernanceToken.addPauser(process.env.DEVELOPMENT_ADDRESS, { from: process.env.UPGRADE_GOVERNANCE_OWNER_ADDRESS });
+      await rariGovernanceTokenDistributor.transferOwnership(process.env.DEVELOPMENT_ADDRESS, { from: process.env.UPGRADE_GOVERNANCE_OWNER_ADDRESS });
+      RariGovernanceTokenDistributor.class_defaults.from = process.env.DEVELOPMENT_ADDRESS;
+      // await admin.transferProxyAdminOwnership(process.env.DEVELOPMENT_ADDRESS, { from: process.env.UPGRADE_GOVERNANCE_OWNER_ADDRESS });
+    }
+  } else {
+    if (!process.env.POOL_OWNER) return console.error("POOL_OWNER is missing for deployment");
+    if (!process.env.POOL_STABLE_MANAGER_ADDRESS || process.env.POOL_STABLE_MANAGER_ADDRESS == "0x0000000000000000000000000000000000000000") return console.error("POOL_STABLE_MANAGER_ADDRESS missing for deployment");
+    if (!process.env.POOL_STABLE_TOKEN_ADDRESS || process.env.POOL_STABLE_TOKEN_ADDRESS == "0x0000000000000000000000000000000000000000") return console.error("POOL_STABLE_TOKEN_ADDRESS missing for deployment");
+    if (!process.env.POOL_YIELD_MANAGER_ADDRESS || process.env.POOL_YIELD_MANAGER_ADDRESS == "0x0000000000000000000000000000000000000000") return console.error("POOL_YIELD_MANAGER_ADDRESS missing for deployment");
+    if (!process.env.POOL_YIELD_TOKEN_ADDRESS || process.env.POOL_YIELD_TOKEN_ADDRESS == "0x0000000000000000000000000000000000000000") return console.error("POOL_YIELD_TOKEN_ADDRESS missing for deployment");
+    if (!process.env.POOL_ETHEREUM_MANAGER_ADDRESS || process.env.POOL_ETHEREUM_MANAGER_ADDRESS == "0x0000000000000000000000000000000000000000") return console.error("POOL_ETHEREUM_MANAGER_ADDRESS missing for deployment");
+    if (!process.env.POOL_ETHEREUM_TOKEN_ADDRESS || process.env.POOL_ETHEREUM_TOKEN_ADDRESS == "0x0000000000000000000000000000000000000000") return console.error("POOL_ETHEREUM_TOKEN_ADDRESS missing for deployment");
+    if (!process.env.DISTRIBUTION_START_BLOCK) return console.error("DISTRIBUTION_START_BLOCK missing for deployment");
 
-  // Connect RariGovernanceToken to RariGovernanceTokenDistributor
-  await rariGovernanceTokenDistributor.setGovernanceToken(RariGovernanceToken.address);
+    var rariStablePoolManager = await IRariFundManager.at(process.env.POOL_STABLE_MANAGER_ADDRESS);
+    if (await rariStablePoolManager.rariFundToken.call() !== process.env.POOL_STABLE_TOKEN_ADDRESS) return console.error("Mismatch between POOL_STABLE_TOKEN_ADDRESS and RariFundToken set on POOL_STABLE_MANAGER_ADDRESS");
+    var rariYieldPoolManager = await IRariFundManager.at(process.env.POOL_YIELD_MANAGER_ADDRESS);
+    if (await rariYieldPoolManager.rariFundToken.call() !== process.env.POOL_YIELD_TOKEN_ADDRESS) return console.error("Mismatch between POOL_YIELD_TOKEN_ADDRESS and RariFundToken set on POOL_YIELD_MANAGER_ADDRESS");
+    var rariEthereumPoolManager = await IRariFundManager.at(process.env.POOL_ETHEREUM_MANAGER_ADDRESS);
+    if (await rariEthereumPoolManager.rariFundToken.call() !== process.env.POOL_ETHEREUM_TOKEN_ADDRESS) return console.error("Mismatch between POOL_ETHEREUM_TOKEN_ADDRESS and RariFundToken set on POOL_ETHEREUM_MANAGER_ADDRESS");
+    
+    // Deploy RariGovernanceTokenDistributor (passing in pool managers and tokens)
+    var rariGovernanceTokenDistributor = await deployProxy(RariGovernanceTokenDistributor, [process.env.DISTRIBUTION_START_BLOCK, [process.env.POOL_STABLE_MANAGER_ADDRESS, process.env.POOL_YIELD_MANAGER_ADDRESS, process.env.POOL_ETHEREUM_MANAGER_ADDRESS], [process.env.POOL_STABLE_TOKEN_ADDRESS, process.env.POOL_YIELD_TOKEN_ADDRESS, process.env.POOL_ETHEREUM_TOKEN_ADDRESS]], { deployer, unsafeAllowCustomTypes: true });
 
-  // Connect RariGovernanceTokenDistributor to pool managers and tokens
-  var rariStablePoolToken = await IRariFundToken.at(process.env.POOL_STABLE_TOKEN_ADDRESS);
-  
-  try {
-    await rariStablePoolToken.setGovernanceTokenDistributor(RariGovernanceTokenDistributor.address, ["live", "live-fork"].indexOf(network) < 0, { from: process.env.POOL_OWNER });
-  } catch (error) {
-    if (["live", "live-fork"].indexOf(network) < 0 && error.message.indexOf("MinterRole: caller does not have the Minter role") >= 0) await rariStablePoolToken.setGovernanceTokenDistributor(RariGovernanceTokenDistributor.address, ["live", "live-fork"].indexOf(network) < 0);
-    else return console.error(error);
-  }
-  
-  var rariYieldPoolToken = await IRariFundToken.at(process.env.POOL_YIELD_TOKEN_ADDRESS);
- 
-  try {
-    await rariYieldPoolToken.setGovernanceTokenDistributor(RariGovernanceTokenDistributor.address, ["live", "live-fork"].indexOf(network) < 0, { from: process.env.POOL_OWNER });
-  } catch (error) {
-    if (["live", "live-fork"].indexOf(network) < 0 && error.message.indexOf("MinterRole: caller does not have the Minter role") >= 0) await rariYieldPoolToken.setGovernanceTokenDistributor(RariGovernanceTokenDistributor.address, ["live", "live-fork"].indexOf(network) < 0);
-    else return console.error(error);
-  }
-  
-  var rariEthereumPoolToken = await IRariFundToken.at(process.env.POOL_ETHEREUM_TOKEN_ADDRESS);
-  
-  try {
-    await rariEthereumPoolToken.setGovernanceTokenDistributor(RariGovernanceTokenDistributor.address, ["live", "live-fork"].indexOf(network) < 0, { from: process.env.POOL_OWNER });
-  } catch (error) {
-    if (["live", "live-fork"].indexOf(network) < 0 && error.message.indexOf("MinterRole: caller does not have the Minter role") >= 0) await rariEthereumPoolToken.setGovernanceTokenDistributor(RariGovernanceTokenDistributor.address, ["live", "live-fork"].indexOf(network) < 0);
-    else return console.error(error);
-  }
+    // Deploy rariGovernanceToken (passing in the address of RariGovernanceTokenDistributor)
+    var rariGovernanceToken = await deployProxy(RariGovernanceToken, [RariGovernanceTokenDistributor.address, ["live", "live-fork"].indexOf(network) >= 0 ? process.env.LIVE_GOVERNANCE_OWNER : process.env.DEVELOPMENT_ADDRESS], { deployer });
 
-  if (["live", "live-fork"].indexOf(network) >= 0) {
-    // Live network: transfer ownership of deployed contracts from the deployer to the owner and send RGT to owner
-    await rariGovernanceToken.addPauser(process.env.LIVE_GOVERNANCE_OWNER);
-    await rariGovernanceToken.renouncePauser();
-    await rariGovernanceTokenDistributor.transferOwnership(process.env.LIVE_GOVERNANCE_OWNER);
-    await admin.transferProxyAdminOwnership(process.env.LIVE_GOVERNANCE_OWNER);
+    // Connect RariGovernanceToken to RariGovernanceTokenDistributor
+    await rariGovernanceTokenDistributor.setGovernanceToken(RariGovernanceToken.address);
+
+    // Connect RariGovernanceTokenDistributor to pool managers and tokens
+    var rariStablePoolToken = await IRariFundToken.at(process.env.POOL_STABLE_TOKEN_ADDRESS);
+    
+    try {
+      await rariStablePoolToken.setGovernanceTokenDistributor(RariGovernanceTokenDistributor.address, ["live", "live-fork"].indexOf(network) < 0, { from: process.env.POOL_OWNER });
+    } catch (error) {
+      if (["live", "live-fork"].indexOf(network) < 0 && error.message.indexOf("MinterRole: caller does not have the Minter role") >= 0) await rariStablePoolToken.setGovernanceTokenDistributor(RariGovernanceTokenDistributor.address, ["live", "live-fork"].indexOf(network) < 0);
+      else return console.error(error);
+    }
+    
+    var rariYieldPoolToken = await IRariFundToken.at(process.env.POOL_YIELD_TOKEN_ADDRESS);
+  
+    try {
+      await rariYieldPoolToken.setGovernanceTokenDistributor(RariGovernanceTokenDistributor.address, ["live", "live-fork"].indexOf(network) < 0, { from: process.env.POOL_OWNER });
+    } catch (error) {
+      if (["live", "live-fork"].indexOf(network) < 0 && error.message.indexOf("MinterRole: caller does not have the Minter role") >= 0) await rariYieldPoolToken.setGovernanceTokenDistributor(RariGovernanceTokenDistributor.address, ["live", "live-fork"].indexOf(network) < 0);
+      else return console.error(error);
+    }
+    
+    var rariEthereumPoolToken = await IRariFundToken.at(process.env.POOL_ETHEREUM_TOKEN_ADDRESS);
+    
+    try {
+      await rariEthereumPoolToken.setGovernanceTokenDistributor(RariGovernanceTokenDistributor.address, ["live", "live-fork"].indexOf(network) < 0, { from: process.env.POOL_OWNER });
+    } catch (error) {
+      if (["live", "live-fork"].indexOf(network) < 0 && error.message.indexOf("MinterRole: caller does not have the Minter role") >= 0) await rariEthereumPoolToken.setGovernanceTokenDistributor(RariGovernanceTokenDistributor.address, ["live", "live-fork"].indexOf(network) < 0);
+      else return console.error(error);
+    }
+
+    if (["live", "live-fork"].indexOf(network) >= 0) {
+      // Live network: transfer ownership of deployed contracts from the deployer to the owner
+      await rariGovernanceToken.addPauser(process.env.LIVE_GOVERNANCE_OWNER);
+      await rariGovernanceToken.renouncePauser();
+      await rariGovernanceTokenDistributor.transferOwnership(process.env.LIVE_GOVERNANCE_OWNER);
+      await admin.transferProxyAdminOwnership(process.env.LIVE_GOVERNANCE_OWNER);
+    }
   }
 };

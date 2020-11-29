@@ -14,4 +14,10 @@ As follows are all deployments of our smart contracts on the Ethereum mainnet. S
 
 `RariGovernanceTokenDistributor` distributes RGT (Rari Governance Token) to Rari Stable Pool, Yield Pool, and Ethereum Pool holders.
 
-**v1.0.0**: `0x9C0CaEb986c003417D21A7Daaf30221d61FC1043`
+**v1.1.0**: `0x9C0CaEb986c003417D21A7Daaf30221d61FC1043`
+
+## Older Versions
+
+### `RariGovernanceTokenDistributor`
+
+* **v1.0.0**: `0x9C0CaEb986c003417D21A7Daaf30221d61FC1043`

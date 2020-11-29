@@ -37,6 +37,7 @@ contract RariGovernanceTokenDistributor is Initializable, Ownable {
         distributionEndBlock = distributionStartBlock + DISTRIBUTION_PERIOD;
         rariFundManagers = fundManagers;
         rariFundTokens = fundTokens;
+        _ethUsdPriceFeed = AggregatorV3Interface(0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419);
     }
 
     /**
@@ -225,7 +226,7 @@ contract RariGovernanceTokenDistributor is Initializable, Ownable {
     AggregatorV3Interface private _ethUsdPriceFeed;
 
     /**
-     * @dev Retrives the latest ETH/USD price.
+     * @notice Retrives the latest ETH/USD price (scaled by 1e8) from Chainlink (used to calculate RGT distribution speeds).
      */
     function getEthUsdPrice() public view returns (uint256) {
         (, int256 price, , , ) = _ethUsdPriceFeed.latestRoundData();
@@ -440,5 +441,12 @@ contract RariGovernanceTokenDistributor is Initializable, Ownable {
     function upgrade(address newContract) external onlyOwner {
         require(disabled, "This governance token distributor contract must be disabled before it can be upgraded.");
         rariGovernanceToken.transfer(newContract, rariGovernanceToken.balanceOf(address(this)));
+    }
+
+    /**
+     * @dev Sets the ETH/USD price feed if not initialized due to upgrade.
+     */
+    function setEthUsdPriceFeed() external onlyOwner {
+        _ethUsdPriceFeed = AggregatorV3Interface(0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419);
     }
 }
