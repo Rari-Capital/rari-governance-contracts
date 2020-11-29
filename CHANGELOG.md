@@ -1,5 +1,9 @@
 # Changelog
 
+## `v1.2.0` (contracts deployed 2020-11-27; all code pushed 2020-11-29)
+
+* Added private vesting schedules via `RariGovernanceTokenVesting`.
+
 ## `v1.1.0` (contracts deployed 2020-10-20; all code pushed 2020-11-29)
 
 * Fixed ETH/USD price feed in `RariGovernanceTokenDistributor`.

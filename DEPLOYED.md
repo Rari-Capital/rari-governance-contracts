@@ -16,6 +16,12 @@ As follows are all deployments of our smart contracts on the Ethereum mainnet. S
 
 **v1.1.0**: `0x9C0CaEb986c003417D21A7Daaf30221d61FC1043`
 
+### `RariGovernanceTokenVesting`
+
+`RariGovernanceTokenVesting` distributes private RGT (Rari Governance Token) allocations to team/advisors/etc. with a vesting schedule.
+
+**v1.2.0**: `0xA54B473028f4ba881F1eD6B670af4103e8F9B98a`
+
 ## Older Versions
 
 ### `RariGovernanceTokenDistributor`
