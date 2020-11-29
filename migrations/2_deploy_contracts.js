@@ -7,7 +7,7 @@
  * This license is liable to change at any time at the sole discretion of David Lucid of Rari Capital, Inc.
  */
 
-const { deployProxy, admin } = require('@openzeppelin/truffle-upgrades');
+const { deployProxy, upgradeProxy, admin } = require('@openzeppelin/truffle-upgrades');
 require('dotenv').config();
 
 var RariGovernanceToken = artifacts.require("RariGovernanceToken");
@@ -29,23 +29,18 @@ module.exports = async function(deployer, network, accounts) {
     if (!process.env.UPGRADE_GOVERNANCE_OWNER_ADDRESS) return console.error("UPGRADE_GOVERNANCE_OWNER_ADDRESS is missing for upgrade");
     if (["live", "live-fork"].indexOf(network) >= 0 && !process.env.LIVE_UPGRADE_GOVERNANCE_OWNER_PRIVATE_KEY) return console.error("LIVE_UPGRADE_GOVERNANCE_OWNER_PRIVATE_KEY is missing for live upgrade");
 
-    // Deploy RariGovernanceTokenVesting
-    var rariGovernanceTokenVesting = await deployProxy(RariGovernanceTokenVesting, [process.env.PRIVATE_VESTING_START_TIMESTAMP], { deployer });
-
-    // Connect RariGovernanceToken to RariGovernanceTokenVesting
-    await rariGovernanceTokenVesting.setGovernanceToken(process.env.UPGRADE_GOVERNANCE_TOKEN_ADDRESS);
-
-    // Send tokens to RariGovernanceTokenVesting
-    var rariGovernanceToken = await RariGovernanceToken.at(process.env.UPGRADE_GOVERNANCE_TOKEN_ADDRESS);
-    await rariGovernanceToken.transfer(RariGovernanceTokenVesting.address, web3.utils.toBN(1250000).mul(web3.utils.toBN(1e18)), { from: process.env.UPGRADE_GOVERNANCE_OWNER_ADDRESS });
+    // Upgrade RariGovernanceTokenDistributor
+    RariGovernanceTokenDistributor.class_defaults.from = process.env.UPGRADE_GOVERNANCE_OWNER_ADDRESS;
+    var rariGovernanceTokenDistributor = await upgradeProxy(process.env.UPGRADE_GOVERNANCE_TOKEN_DISTRIBUTOR_ADDRESS, RariGovernanceTokenDistributor, { deployer, unsafeAllowCustomTypes: true });
 
     // Development network: transfer ownership of contracts to development address, set development address as rebalancer, and set all currencies to accepted
-    if (["live", "live-fork"].indexOf(network) >= 0) {
-      await rariGovernanceTokenVesting.transferOwnership(process.env.LIVE_GOVERNANCE_OWNER);
-    } else {
+    if (["live", "live-fork"].indexOf(network) < 0) {
+      var rariGovernanceToken = await RariGovernanceToken.at(process.env.UPGRADE_GOVERNANCE_TOKEN_ADDRESS);
       await rariGovernanceToken.addPauser(process.env.DEVELOPMENT_ADDRESS, { from: process.env.UPGRADE_GOVERNANCE_OWNER_ADDRESS });
-      var rariGovernanceTokenDistributor = await RariGovernanceTokenDistributor.at(process.env.UPGRADE_GOVERNANCE_TOKEN_DISTRIBUTOR_ADDRESS);
       await rariGovernanceTokenDistributor.transferOwnership(process.env.DEVELOPMENT_ADDRESS, { from: process.env.UPGRADE_GOVERNANCE_OWNER_ADDRESS });
+      RariGovernanceTokenDistributor.class_defaults.from = process.env.DEVELOPMENT_ADDRESS;
+      var rariGovernanceTokenVesting = await RariGovernanceTokenVesting.at(process.env.UPGRADE_GOVERNANCE_TOKEN_VESTING_ADDRESS);
+      await rariGovernanceTokenVesting.transferOwnership(process.env.DEVELOPMENT_ADDRESS, { from: process.env.UPGRADE_GOVERNANCE_OWNER_ADDRESS });
       // await admin.transferProxyAdminOwnership(process.env.DEVELOPMENT_ADDRESS, { from: process.env.UPGRADE_GOVERNANCE_OWNER_ADDRESS });
     }
   } else {

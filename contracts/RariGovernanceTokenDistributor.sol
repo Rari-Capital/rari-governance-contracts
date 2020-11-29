@@ -157,9 +157,9 @@ contract RariGovernanceTokenDistributor is Initializable, Ownable {
         if (blockNumber <= distributionStartBlock) return 0;
         if (blockNumber >= distributionEndBlock) return FINAL_RGT_DISTRIBUTION;
         uint256 blocks = blockNumber.sub(distributionStartBlock);
-        if (blocks < 86400) return uint256(1e18).mul(blocks ** 2).div(2730).add(uint256(1450e18).mul(blocks).div(273));
-        if (blocks < 172800) return uint256(14600e18).mul(blocks).div(273).sub(uint256(2e18).mul(blocks ** 2).div(17745)).sub(uint256(1000000e18).div(7));
-        if (blocks < 259200) return uint256(1e18).mul(blocks ** 2).div(35490).add(uint256(39250000e18).div(7)).sub(uint256(950e18).mul(blocks).div(273));
+        if (blocks < 97500) return uint256(1e18).mul(blocks ** 2).div(2730).add(uint256(1450e18).mul(blocks).div(273));
+        if (blocks < 195000) return uint256(14600e18).mul(blocks).div(273).sub(uint256(2e18).mul(blocks ** 2).div(17745)).sub(uint256(1000000e18).div(7));
+        if (blocks < 292500) return uint256(1e18).mul(blocks ** 2).div(35490).add(uint256(39250000e18).div(7)).sub(uint256(950e18).mul(blocks).div(273));
         return uint256(1e18).mul(blocks ** 2).div(35490).add(uint256(34750000e18).div(7)).sub(uint256(50e18).mul(blocks).div(39));
     }
 
@@ -226,7 +226,7 @@ contract RariGovernanceTokenDistributor is Initializable, Ownable {
     AggregatorV3Interface private _ethUsdPriceFeed;
 
     /**
-     * @notice Retrives the latest ETH/USD price (scaled by 1e8) from Chainlink (used to calculate RGT distribution speeds).
+     * @dev Retrives the latest ETH/USD price.
      */
     function getEthUsdPrice() public view returns (uint256) {
         (, int256 price, , , ) = _ethUsdPriceFeed.latestRoundData();
