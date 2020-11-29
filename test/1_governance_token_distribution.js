@@ -114,7 +114,7 @@ contract("RariGovernanceTokenDistributor", accounts => {
     var rsptBalance = await stablePoolTokenInstance.balanceOf.call(process.env.DEVELOPMENT_ADDRESS);
     var myEstimatedRgt = stablePoolRgtPerRspt.mul(rsptBalance).div(web3.utils.toBN(1e18));
     var myUnclaimedRgt = await governanceTokenDistributorInstance.getUnclaimedRgt.call(process.env.DEVELOPMENT_ADDRESS);
-    assert(myUnclaimedRgt.gte(myEstimatedRgt.muln(99).divn(100)) && myUnclaimedRgt.lte(myEstimatedRgt.muln(105).divn(100)));
+    assert(myUnclaimedRgt.gte(myEstimatedRgt.muln(99).divn(100)) && myUnclaimedRgt.lte(myEstimatedRgt.muln(102).divn(100)));
 
     // Claim all RGT
     var initialRgt = await governanceTokenInstance.balanceOf.call(process.env.DEVELOPMENT_ADDRESS);
@@ -122,7 +122,7 @@ contract("RariGovernanceTokenDistributor", accounts => {
     var rgtAfterClaim = await governanceTokenInstance.balanceOf.call(process.env.DEVELOPMENT_ADDRESS);
     var myClaimedRgt = rgtAfterClaim.sub(initialRgt);
     myEstimatedRgt.isub(myEstimatedRgt.mul(getPublicRgtClaimFee(await web3.eth.getBlockNumber())).div(web3.utils.toBN(1e18)));
-    assert(myClaimedRgt.gte(myEstimatedRgt.muln(99).divn(100)) && myClaimedRgt.lte(myEstimatedRgt.muln(105).divn(100)));
+    assert(myClaimedRgt.gte(myEstimatedRgt.muln(99).divn(100)) && myClaimedRgt.lte(myEstimatedRgt.muln(102).divn(100)));
 
     // Make 100 transactions to simulate 100 blocks passing; calculate RGT distributed per RSPT during the 100-block period
     var stablePoolRgtPerRspt = await pass100BlocksAndGetRgtPerRspt(stablePoolManagerInstance, yieldPoolManagerInstance, ethereumPoolManagerInstance, stablePoolTokenInstance, governanceTokenDistributorInstance);
@@ -130,7 +130,7 @@ contract("RariGovernanceTokenDistributor", accounts => {
     // Check unclaimed RGT against estimate
     var myEstimatedRgt = stablePoolRgtPerRspt.mul(rsptBalance).div(web3.utils.toBN(1e18));
     var myUnclaimedRgt = await governanceTokenDistributorInstance.getUnclaimedRgt.call(process.env.DEVELOPMENT_ADDRESS);
-    assert(myUnclaimedRgt.gte(myEstimatedRgt.muln(99).divn(100)) && myUnclaimedRgt.lte(myEstimatedRgt.muln(105).divn(100)));
+    assert(myUnclaimedRgt.gte(myEstimatedRgt.muln(99).divn(100)) && myUnclaimedRgt.lte(myEstimatedRgt.muln(102).divn(100)));
 
     // Transfer RSPT (distributing RGT in the process)
     await stablePoolTokenInstance.transfer(process.env.DEVELOPMENT_ADDRESS_SECONDARY, rsptBalance, { from: process.env.DEVELOPMENT_ADDRESS });
@@ -141,7 +141,7 @@ contract("RariGovernanceTokenDistributor", accounts => {
     var rgtAfterClaim = await governanceTokenInstance.balanceOf.call(process.env.DEVELOPMENT_ADDRESS);
     var myClaimedRgt = rgtAfterClaim.sub(initialRgt);
     myEstimatedRgt.isub(myEstimatedRgt.mul(getPublicRgtClaimFee(await web3.eth.getBlockNumber())).div(web3.utils.toBN(1e18)));
-    assert(myClaimedRgt.gte(myEstimatedRgt.muln(99).divn(100)) && myClaimedRgt.lte(myEstimatedRgt.muln(105).divn(100)));
+    assert(myClaimedRgt.gte(myEstimatedRgt.muln(99).divn(100)) && myClaimedRgt.lte(myEstimatedRgt.muln(102).divn(100)));
 
     // Make 100 transactions to simulate 100 blocks passing; calculate RGT distributed per RSPT during the 100-block period
     var stablePoolRgtPerRspt = await pass100BlocksAndGetRgtPerRspt(stablePoolManagerInstance, yieldPoolManagerInstance, ethereumPoolManagerInstance, stablePoolTokenInstance, governanceTokenDistributorInstance);
@@ -149,7 +149,7 @@ contract("RariGovernanceTokenDistributor", accounts => {
     // Check unclaimed RGT against estimate
     var myEstimatedRgt = stablePoolRgtPerRspt.mul(rsptBalance).div(web3.utils.toBN(1e18));
     var myUnclaimedRgt = await governanceTokenDistributorInstance.getUnclaimedRgt.call(process.env.DEVELOPMENT_ADDRESS_SECONDARY);
-    assert(myUnclaimedRgt.gte(myEstimatedRgt.muln(99).divn(100)) && myUnclaimedRgt.lte(myEstimatedRgt.muln(105).divn(100)));
+    assert(myUnclaimedRgt.gte(myEstimatedRgt.muln(99).divn(100)) && myUnclaimedRgt.lte(myEstimatedRgt.muln(102).divn(100)));
 
     // Deposit (distributing RGT in the process)
     await stablePoolManagerInstance.deposit("USDC", web3.utils.toBN(1e5), { from: process.env.DEVELOPMENT_ADDRESS_SECONDARY });
@@ -169,7 +169,7 @@ contract("RariGovernanceTokenDistributor", accounts => {
     var rsptBalance = await stablePoolTokenInstance.balanceOf.call(process.env.DEVELOPMENT_ADDRESS_SECONDARY);
     var myEstimatedRgt = stablePoolRgtPerRspt.mul(rsptBalance).div(web3.utils.toBN(1e18));
     var myUnclaimedRgt = await governanceTokenDistributorInstance.getUnclaimedRgt.call(process.env.DEVELOPMENT_ADDRESS_SECONDARY);
-    assert(myUnclaimedRgt.gte(myEstimatedRgt.muln(99).divn(100)) && myUnclaimedRgt.lte(myEstimatedRgt.muln(105).divn(100)));
+    assert(myUnclaimedRgt.gte(myEstimatedRgt.muln(99).divn(100)) && myUnclaimedRgt.lte(myEstimatedRgt.muln(102).divn(100)));
 
     // Withdraw (distributing RGT in the process)
     await stablePoolManagerInstance.withdraw("USDC", web3.utils.toBN(1e5), { from: process.env.DEVELOPMENT_ADDRESS_SECONDARY });
@@ -180,7 +180,7 @@ contract("RariGovernanceTokenDistributor", accounts => {
     var rgtAfterClaim = await governanceTokenInstance.balanceOf.call(process.env.DEVELOPMENT_ADDRESS_SECONDARY);
     var myClaimedRgt = rgtAfterClaim.sub(initialRgt);
     myEstimatedRgt.isub(myEstimatedRgt.mul(getPublicRgtClaimFee(await web3.eth.getBlockNumber())).div(web3.utils.toBN(1e18)));
-    assert(myClaimedRgt.gte(myEstimatedRgt.muln(99).divn(100)) && myClaimedRgt.lte(myEstimatedRgt.muln(105).divn(100)));
+    assert(myClaimedRgt.gte(myEstimatedRgt.muln(99).divn(100)) && myClaimedRgt.lte(myEstimatedRgt.muln(102).divn(100)));
   });
 });
 
