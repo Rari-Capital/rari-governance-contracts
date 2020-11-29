@@ -226,7 +226,7 @@ contract RariGovernanceTokenDistributor is Initializable, Ownable {
     AggregatorV3Interface private _ethUsdPriceFeed;
 
     /**
-     * @dev Retrives the latest ETH/USD price.
+     * @notice Retrives the latest ETH/USD price (scaled by 1e8) from Chainlink (used to calculate RGT distribution speeds).
      */
     function getEthUsdPrice() public view returns (uint256) {
         (, int256 price, , , ) = _ethUsdPriceFeed.latestRoundData();
