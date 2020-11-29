@@ -438,6 +438,100 @@
           }
         }
       }
+    },
+    "5e6c9dbd72b132b5d7996b0990c6fb6194bd5e670fb4aa259c1fa2ac1781ec22": {
+      "address": "0x6526FAa601072f3c4b1F030c04F562f608D6D027",
+      "txHash": "0x02d14a2eec7fa77e3ced90d1f331aec8b8601fce97098256207084febdbd6591",
+      "layout": {
+        "storage": [
+          {
+            "contract": "Initializable",
+            "label": "initialized",
+            "type": "t_bool",
+            "src": "../@openzeppelin/upgrades/contracts/Initializable.sol:21"
+          },
+          {
+            "contract": "Initializable",
+            "label": "initializing",
+            "type": "t_bool",
+            "src": "../@openzeppelin/upgrades/contracts/Initializable.sol:26"
+          },
+          {
+            "contract": "Initializable",
+            "label": "______gap",
+            "type": "t_array(t_uint256)50_storage",
+            "src": "../@openzeppelin/upgrades/contracts/Initializable.sol:61"
+          },
+          {
+            "contract": "Ownable",
+            "label": "_owner",
+            "type": "t_address",
+            "src": "../@openzeppelin/contracts-ethereum-package/contracts/ownership/Ownable.sol:17"
+          },
+          {
+            "contract": "Ownable",
+            "label": "______gap",
+            "type": "t_array(t_uint256)50_storage",
+            "src": "../@openzeppelin/contracts-ethereum-package/contracts/ownership/Ownable.sol:80"
+          },
+          {
+            "contract": "RariGovernanceTokenVesting",
+            "label": "rariGovernanceToken",
+            "type": "t_contract(RariGovernanceToken)125",
+            "src": "RariGovernanceTokenVesting.sol:39"
+          },
+          {
+            "contract": "RariGovernanceTokenVesting",
+            "label": "privateVestingStartTimestamp",
+            "type": "t_uint256",
+            "src": "RariGovernanceTokenVesting.sol:53"
+          },
+          {
+            "contract": "RariGovernanceTokenVesting",
+            "label": "privateVestingEndTimestamp",
+            "type": "t_uint256",
+            "src": "RariGovernanceTokenVesting.sol:63"
+          },
+          {
+            "contract": "RariGovernanceTokenVesting",
+            "label": "_privateRgtAllocated",
+            "type": "t_uint256",
+            "src": "RariGovernanceTokenVesting.sol:94"
+          },
+          {
+            "contract": "RariGovernanceTokenVesting",
+            "label": "privateRgtAllocations",
+            "type": "t_mapping(t_address,t_uint256)",
+            "src": "RariGovernanceTokenVesting.sol:99"
+          },
+          {
+            "contract": "RariGovernanceTokenVesting",
+            "label": "_privateRgtClaimed",
+            "type": "t_mapping(t_address,t_uint256)",
+            "src": "RariGovernanceTokenVesting.sol:104"
+          }
+        ],
+        "types": {
+          "t_contract(RariGovernanceToken)125": {
+            "label": "contract RariGovernanceToken"
+          },
+          "t_uint256": {
+            "label": "uint256"
+          },
+          "t_mapping(t_address,t_uint256)": {
+            "label": "mapping(address => uint256)"
+          },
+          "t_address": {
+            "label": "address"
+          },
+          "t_array(t_uint256)50_storage": {
+            "label": "uint256[50]"
+          },
+          "t_bool": {
+            "label": "bool"
+          }
+        }
+      }
     }
   },
   "admin": {
