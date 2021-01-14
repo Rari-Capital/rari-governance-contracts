@@ -39,8 +39,11 @@ contract RariGovernanceToken is Initializable, ERC20, ERC20Detailed, ERC20Burnab
     /**
      * @dev Upgrades RariGovernanceToken from `v1.3.0` to `v1.4.0`.
      */
-    function upgrade(address uniswapDistributor) external onlyPauser {
+    function upgrade(address distributor, address vesting, address treasury, address uniswapDistributor) external onlyPauser {
         require(!upgraded, "Already upgraded.");
+        _mint(distributor, 3000000 * (10 ** uint256(decimals())));
+        _mint(vesting, 2000000 * (10 ** uint256(decimals())));
+        _mint(treasury, 5000000 * (10 ** uint256(decimals())));
         _mint(uniswapDistributor, 556798834975625333367546);
         upgraded = true;
     }

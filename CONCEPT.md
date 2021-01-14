@@ -18,6 +18,8 @@ During the liquidity mining period of `390000` blocks (approximately 60 days), s
 
 During the **initial liquidity mining period**, RGT is constantly being distributed to Rari Stable Pool, Yield Pool, and Ethereum Pool holders. You may claim your earned RGT at any time. However, if you claim RGT before the liquidity mining period ends, you will be subject to a burn fee (beginnning at 33% at the start of liquidity mining and decreasing linearly to 0% once liquidity mining is over).
 
+During the **second liquidity mining period**, RGT is constantly being distributed to Rari Stable Pool, Yield Pool, and Ethereum Pool holders. There is no claim fee.
+
 During the **special Uniswap liquidity mining period**, RGT is constantly being distributed to liquidity providers for the RGT/ETH Uniswap V2 Pair. There is no claim fee.
 
 ## Structure
