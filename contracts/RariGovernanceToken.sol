@@ -30,4 +30,18 @@ contract RariGovernanceToken is Initializable, ERC20, ERC20Detailed, ERC20Burnab
         _mint(distributor, 8750000 * (10 ** uint256(decimals())));
         _mint(vesting, 1250000 * (10 ** uint256(decimals())));
     }
+
+    /**
+     * @dev Boolean indicating if this RariFundToken contract has been deployed at least `v1.4.0` or upgraded to at least `v1.4.0`.
+     */
+    bool private upgraded;
+
+    /**
+     * @dev Upgrades RariGovernanceToken from `v1.3.0` to `v1.4.0`.
+     */
+    function upgrade(address uniswapDistributor) external onlyPauser {
+        require(!upgraded, "Already upgraded.");
+        _mint(uniswapDistributor, 556798834975625333367546);
+        upgraded = true;
+    }
 }

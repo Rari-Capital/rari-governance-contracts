@@ -16,7 +16,9 @@ During the liquidity mining period of `390000` blocks (approximately 60 days), s
 
 ## Claiming RGT
 
-During the liquidity mining period, RGT is constantly being distributed to Rari Stable Pool, Yield Pool, and Ethereum Pool holders. You may claim your earned RGT at any time. However, if you claim RGT before the liquidity mining period ends, you will be subject to a burn fee (beginnning at 33% at the start of liquidity mining and decreasing linearly to 0% once liquidity mining is over).
+During the **initial liquidity mining period**, RGT is constantly being distributed to Rari Stable Pool, Yield Pool, and Ethereum Pool holders. You may claim your earned RGT at any time. However, if you claim RGT before the liquidity mining period ends, you will be subject to a burn fee (beginnning at 33% at the start of liquidity mining and decreasing linearly to 0% once liquidity mining is over).
+
+During the **special Uniswap liquidity mining period**, RGT is constantly being distributed to liquidity providers for the RGT/ETH Uniswap V2 Pair. There is no claim fee.
 
 ## Structure
 
@@ -24,6 +26,7 @@ The Rari Governance protocol is made up of 3 user-facing **smart contracts** in 
 
 * `RariGovernanceToken` is the contract behind the Rari Governance Token (RGT), an ERC20 token accounting for the ownership of Rari Stable Pool, Yield Pool, and Ethereum Pool.
 * `RariGovernanceTokenDistributor` distributes RGT (Rari Governance Token) to Rari Stable Pool, Yield Pool, and Ethereum Pool holders.
+* `RariGovernanceTokenUniswapDistributor` distributes RGT (Rari Governance Token) to liquidity providers for the RGT/ETH Uniswap V2 Pair.
 * `RariGovernanceTokenVesting` distributes private RGT (Rari Governance Token) allocations to team/advisors/etc. with a vesting schedule.
 
 ## Security

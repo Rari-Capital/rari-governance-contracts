@@ -1,5 +1,9 @@
 # Changelog
 
+## `v1.4.0` (contracts not yet deployed; all code not yet pushed)
+
+* Added RGT distributions for the official Uniswap V2 RGT/ETH pair.
+
 ## `v1.3.0` (contracts deployed 2020-11-29; all code pushed 2020-11-29)
 
 * Fixed RGT distribution equation in `RariGovernanceTokenDistributor`.
