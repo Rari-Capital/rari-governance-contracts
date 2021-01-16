@@ -151,12 +151,12 @@ contract RariGovernanceTokenUniswapDistributor is Initializable, Ownable {
      * @param amount The amount of Uniswap LP tokens to deposit.
      */
     function withdraw(uint256 amount) external enabled {
+        // Distribute RGT to sender
+        if (block.number > distributionStartBlock) distributeRgt(msg.sender);
+
         // Subtract from staking balance
         stakingBalances[msg.sender] = stakingBalances[msg.sender].sub(amount);
         totalStaked = totalStaked.sub(amount);
-
-        // Distribute RGT to sender
-        if (block.number > distributionStartBlock) distributeRgt(msg.sender);
 
         // Transfer RGT out to sender
         rgtEthUniswapV2Pair.safeTransfer(msg.sender, amount);
