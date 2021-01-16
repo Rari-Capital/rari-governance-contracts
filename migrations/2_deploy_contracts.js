@@ -37,6 +37,11 @@ module.exports = async function(deployer, network, accounts) {
     // Deploy RariGovernanceTokenUniswapDistributor
     var rariGovernanceTokenUniswapDistributor = await deployProxy(RariGovernanceTokenUniswapDistributor, [process.env.UNISWAP_DISTRIBUTION_START_BLOCK, process.env.UNISWAP_V2_PAIR_RGT_ETH], { deployer });
 
+    // Upgrade RariGovernanceToken
+    RariGovernanceToken.class_defaults.from = process.env.UPGRADE_GOVERNANCE_OWNER_ADDRESS;
+    var rariGovernanceToken = await upgradeProxy(process.env.UPGRADE_GOVERNANCE_TOKEN_ADDRESS, RariGovernanceToken, { deployer });
+    await rariGovernanceToken.upgrade(process.env.UPGRADE_GOVERNANCE_TOKEN_DISTRIBUTOR_ADDRESS, process.env.UPGRADE_GOVERNANCE_TOKEN_VESTING_ADDRESS, ["live", "live-fork"].indexOf(network) >= 0 ? process.env.LIVE_GOVERNANCE_OWNER : process.env.DEVELOPMENT_ADDRESS, RariGovernanceTokenUniswapDistributor.address, { from: process.env.UPGRADE_GOVERNANCE_OWNER_ADDRESS });
+
     // Connect RariGovernanceToken to RariGovernanceTokenUniswapDistributor
     await rariGovernanceTokenUniswapDistributor.setGovernanceToken(process.env.UPGRADE_GOVERNANCE_TOKEN_ADDRESS);
 
@@ -45,13 +50,13 @@ module.exports = async function(deployer, network, accounts) {
       await rariGovernanceTokenUniswapDistributor.transferOwnership(process.env.LIVE_GOVERNANCE_OWNER);
     } else {
       // Development network: transfer ownership of contracts to development address
-      var rariGovernanceToken = await rariGovernanceToken.at(process.env.UPGRADE_GOVERNANCE_TOKEN_ADDRESS);
       await rariGovernanceToken.addPauser(process.env.DEVELOPMENT_ADDRESS, { from: process.env.UPGRADE_GOVERNANCE_OWNER_ADDRESS });
       await rariGovernanceToken.transferOwnership(process.env.DEVELOPMENT_ADDRESS, { from: process.env.UPGRADE_GOVERNANCE_OWNER_ADDRESS });
       var rariGovernanceTokenDistributor = await RariGovernanceTokenDistributor.at(process.env.UPGRADE_GOVERNANCE_TOKEN_DISTRIBUTOR_ADDRESS);
       await rariGovernanceTokenDistributor.transferOwnership(process.env.DEVELOPMENT_ADDRESS, { from: process.env.UPGRADE_GOVERNANCE_OWNER_ADDRESS });
       var rariGovernanceTokenVesting = await RariGovernanceTokenVesting.at(process.env.UPGRADE_GOVERNANCE_TOKEN_VESTING_ADDRESS);
       await rariGovernanceTokenVesting.transferOwnership(process.env.DEVELOPMENT_ADDRESS, { from: process.env.UPGRADE_GOVERNANCE_OWNER_ADDRESS });
+      RariGovernanceToken.class_defaults.from = process.env.DEVELOPMENT_ADDRESS;
       // await admin.transferProxyAdminOwnership(process.env.DEVELOPMENT_ADDRESS, { from: process.env.UPGRADE_GOVERNANCE_OWNER_ADDRESS });
     }
   } else {
@@ -82,6 +87,9 @@ module.exports = async function(deployer, network, accounts) {
 
     // Deploy RariGovernanceToken (passing in the addresses of RariGovernanceTokenDistributor and RariGovernanceTokenVesting)
     var rariGovernanceToken = await deployProxy(RariGovernanceToken, [RariGovernanceTokenDistributor.address, RariGovernanceTokenVesting.address], { deployer });
+
+    // Upgrade RariGovernanceToken
+    await rariGovernanceToken.upgrade(process.env.UPGRADE_GOVERNANCE_TOKEN_DISTRIBUTOR_ADDRESS, process.env.UPGRADE_GOVERNANCE_TOKEN_VESTING_ADDRESS, ["live", "live-fork"].indexOf(network) >= 0 ? process.env.LIVE_GOVERNANCE_OWNER : process.env.DEVELOPMENT_ADDRESS, RariGovernanceTokenUniswapDistributor.address, { from: process.env.UPGRADE_GOVERNANCE_OWNER_ADDRESS });
 
     // Connect RariGovernanceToken to RariGovernanceTokenDistributor, RariGovernanceTokenUniswapDistributor, and RariGovernanceTokenVesting
     await rariGovernanceTokenDistributor.setGovernanceToken(RariGovernanceToken.address);
