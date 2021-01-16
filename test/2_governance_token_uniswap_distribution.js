@@ -12,7 +12,7 @@ const RariGovernanceTokenUniswapDistributor = artifacts.require("RariGovernanceT
 const IERC20 = artifacts.require("IERC20");
 
 const DISTRIBUTION_PERIOD = 6500 * 365 * 3;
-const FINAL_RGT_DISTRIBUTION = web3.utils.toBN("556798834975625333367546");
+const FINAL_RGT_DISTRIBUTION = web3.utils.toBN("556798834975625333367546").muln(80).divn(100);
 
 function getRgtDistributed(blockNumber) {
   var startBlock = parseInt(process.env.UNISWAP_DISTRIBUTION_START_BLOCK);
@@ -29,10 +29,10 @@ contract("RariGovernanceTokenUniswapDistributor", accounts => {
     // Test Solidity and JS
     for (const [blocks, expected] of [
       [0, "0"],
-      [6500, "508492086735730898052"],
-      [6500 * 30, "15254762602071926941576"],
-      [6500 * 365, "185599611658541777789182"],
-      [6500 * 365 * 3, "556798834975625333367546"]
+      [6500, "406793669388584718442"],
+      [6500 * 30, "12203810081657541553261"],
+      [6500 * 365, "148479689326833422231345"],
+      [6500 * 365 * 3, "445439067980500266694036"]
     ]) {
       var rgtExpected = web3.utils.toBN(expected);
       var rgtDistributedSolidity = await governanceTokenUniswapDistributorInstance.getRgtDistributed.call(parseInt(process.env.UNISWAP_DISTRIBUTION_START_BLOCK) + blocks);

@@ -20,7 +20,7 @@ import "./RariGovernanceToken.sol";
 import "./interfaces/IRariFundManager.sol";
 
 /**
- * @title RariGovernanceToken
+ * @title RariGovernanceTokenDistributor
  * @author David Lucid <david@rari.capital> (https://github.com/davidlucid)
  * @notice RariGovernanceTokenDistributor distributes RGT (Rari Governance Token) to Rari Stable Pool, Yield Pool, and Ethereum Pool holders.
  */
@@ -28,7 +28,7 @@ contract RariGovernanceTokenDistributor is Initializable, Ownable {
     using SafeMath for uint256;
 
     /**
-     * @dev Initializer that reserves 8.75 million RGT for liquidity mining and 1.25 million RGT to the team.
+     * @dev Initializer that sets the distribution start block, distribution end block, fund manager contracts, fund token contracts, and ETH/USD price feed.
      */
     function initialize(uint256 startBlock, IRariFundManager[3] memory fundManagers, IERC20[3] memory fundTokens) public initializer {
         Ownable.initialize(msg.sender);

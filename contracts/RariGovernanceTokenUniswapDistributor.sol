@@ -27,7 +27,7 @@ contract RariGovernanceTokenUniswapDistributor is Initializable, Ownable {
     using SafeERC20 for IERC20;
 
     /**
-     * @dev Initializer that reserves 8.75 million RGT for liquidity mining and 1.25 million RGT to the team.
+     * @dev Initializer that sets the distribution start block, distribution end block, and RGT/ETH Uniswap V2 pair.
      */
     function initialize(uint256 startBlock, IERC20 _rgtEthUniswapV2Pair) public initializer {
         Ownable.initialize(msg.sender);
@@ -101,7 +101,7 @@ contract RariGovernanceTokenUniswapDistributor is Initializable, Ownable {
     /**
      * @notice Total and final quantity of all RGT to be distributed by the end of the period.
      */
-    uint256 public constant FINAL_RGT_DISTRIBUTION = 556798834975625333367546;
+    uint256 public constant FINAL_RGT_DISTRIBUTION = uint256(556798834975625333367546) * 80 / 100;
 
     /**
      * @notice Returns the amount of RGT earned via liquidity mining at the given `blockNumber`.

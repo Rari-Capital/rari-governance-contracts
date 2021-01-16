@@ -40,7 +40,7 @@ module.exports = async function(deployer, network, accounts) {
     // Upgrade RariGovernanceToken
     RariGovernanceToken.class_defaults.from = process.env.UPGRADE_GOVERNANCE_OWNER_ADDRESS;
     var rariGovernanceToken = await upgradeProxy(process.env.UPGRADE_GOVERNANCE_TOKEN_ADDRESS, RariGovernanceToken, { deployer });
-    await rariGovernanceToken.upgrade(process.env.UPGRADE_GOVERNANCE_TOKEN_DISTRIBUTOR_ADDRESS, process.env.UPGRADE_GOVERNANCE_TOKEN_VESTING_ADDRESS, ["live", "live-fork"].indexOf(network) >= 0 ? process.env.LIVE_GOVERNANCE_OWNER : process.env.DEVELOPMENT_ADDRESS, RariGovernanceTokenUniswapDistributor.address, { from: process.env.UPGRADE_GOVERNANCE_OWNER_ADDRESS });
+    await rariGovernanceToken.upgrade(process.env.UPGRADE_GOVERNANCE_TOKEN_DISTRIBUTOR_ADDRESS, process.env.UPGRADE_GOVERNANCE_TOKEN_VESTING_ADDRESS, ["live", "live-fork"].indexOf(network) >= 0 ? process.env.LIVE_GOVERNANCE_OWNER : process.env.DEVELOPMENT_ADDRESS, RariGovernanceTokenUniswapDistributor.address, ["live", "live-fork"].indexOf(network) >= 0 ? process.env.LIVE_GOVERNANCE_OWNER : process.env.DEVELOPMENT_ADDRESS, { from: process.env.UPGRADE_GOVERNANCE_OWNER_ADDRESS });
 
     // Connect RariGovernanceToken to RariGovernanceTokenUniswapDistributor
     await rariGovernanceTokenUniswapDistributor.setGovernanceToken(process.env.UPGRADE_GOVERNANCE_TOKEN_ADDRESS);
@@ -88,7 +88,7 @@ module.exports = async function(deployer, network, accounts) {
     var rariGovernanceToken = await deployProxy(RariGovernanceToken, [RariGovernanceTokenDistributor.address, RariGovernanceTokenVesting.address], { deployer });
 
     // Upgrade RariGovernanceToken
-    await rariGovernanceToken.upgrade(RariGovernanceTokenDistributor.address, RariGovernanceTokenVesting.address, ["live", "live-fork"].indexOf(network) >= 0 ? process.env.LIVE_GOVERNANCE_OWNER : process.env.DEVELOPMENT_ADDRESS, RariGovernanceTokenUniswapDistributor.address);
+    await rariGovernanceToken.upgrade(RariGovernanceTokenDistributor.address, RariGovernanceTokenVesting.address, ["live", "live-fork"].indexOf(network) >= 0 ? process.env.LIVE_GOVERNANCE_OWNER : process.env.DEVELOPMENT_ADDRESS, RariGovernanceTokenUniswapDistributor.address, ["live", "live-fork"].indexOf(network) >= 0 ? process.env.LIVE_GOVERNANCE_OWNER : process.env.DEVELOPMENT_ADDRESS);
 
     // Connect RariGovernanceToken to RariGovernanceTokenDistributor, RariGovernanceTokenUniswapDistributor, and RariGovernanceTokenVesting
     await rariGovernanceTokenDistributor.setGovernanceToken(RariGovernanceToken.address);
