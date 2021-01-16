@@ -143,6 +143,7 @@ contract RariGovernanceTokenUniswapDistributor is Initializable, Ownable {
 
         // Add to staking balance
         stakingBalances[msg.sender] = stakingBalances[msg.sender].add(amount);
+        totalStaked = totalStaked.add(amount);
     }
 
     /**
@@ -152,6 +153,7 @@ contract RariGovernanceTokenUniswapDistributor is Initializable, Ownable {
     function withdraw(uint256 amount) external enabled {
         // Subtract from staking balance
         stakingBalances[msg.sender] = stakingBalances[msg.sender].sub(amount);
+        totalStaked = totalStaked.sub(amount);
 
         // Distribute RGT to sender
         if (block.number > distributionStartBlock) distributeRgt(msg.sender);
