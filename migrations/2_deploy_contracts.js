@@ -88,7 +88,7 @@ module.exports = async function(deployer, network, accounts) {
     var rariGovernanceToken = await deployProxy(RariGovernanceToken, [RariGovernanceTokenDistributor.address, RariGovernanceTokenVesting.address], { deployer });
 
     // Upgrade RariGovernanceToken
-    await rariGovernanceToken.upgrade(process.env.UPGRADE_GOVERNANCE_TOKEN_DISTRIBUTOR_ADDRESS, process.env.UPGRADE_GOVERNANCE_TOKEN_VESTING_ADDRESS, ["live", "live-fork"].indexOf(network) >= 0 ? process.env.LIVE_GOVERNANCE_OWNER : process.env.DEVELOPMENT_ADDRESS, RariGovernanceTokenUniswapDistributor.address, { from: process.env.UPGRADE_GOVERNANCE_OWNER_ADDRESS });
+    await rariGovernanceToken.upgrade(process.env.UPGRADE_GOVERNANCE_TOKEN_DISTRIBUTOR_ADDRESS, process.env.UPGRADE_GOVERNANCE_TOKEN_VESTING_ADDRESS, ["live", "live-fork"].indexOf(network) >= 0 ? process.env.LIVE_GOVERNANCE_OWNER : process.env.DEVELOPMENT_ADDRESS, RariGovernanceTokenUniswapDistributor.address);
 
     // Connect RariGovernanceToken to RariGovernanceTokenDistributor, RariGovernanceTokenUniswapDistributor, and RariGovernanceTokenVesting
     await rariGovernanceTokenDistributor.setGovernanceToken(RariGovernanceToken.address);
