@@ -14,11 +14,16 @@ var RariGovernanceToken = artifacts.require("RariGovernanceToken");
 var RariGovernanceTokenDistributor = artifacts.require("RariGovernanceTokenDistributor");
 var RariGovernanceTokenUniswapDistributor = artifacts.require("RariGovernanceTokenUniswapDistributor");
 var RariGovernanceTokenVesting = artifacts.require("RariGovernanceTokenVesting");
+var RariGovernanceTokenDistributorV2 = artifacts.require("RariGovernanceTokenDistributorV2");
+var RariGovernanceTokenVestingV2 = artifacts.require("RariGovernanceTokenVestingV2");
 var IRariFundManager = artifacts.require("IRariFundManager");
 var IRariFundToken = artifacts.require("IRariFundToken");
 
 module.exports = async function(deployer, network, accounts) {
   if (!process.env.UNISWAP_DISTRIBUTION_START_BLOCK) return console.error("UNISWAP_DISTRIBUTION_START_BLOCK missing for deployment");
+  if (!process.env.DISTRIBUTION_V2_START_BLOCK) return console.error("DISTRIBUTION_V2_START_BLOCK missing for deployment");
+  if (!process.env.PRIVATE_VESTING_V2_START_TIMESTAMP) return console.error("PRIVATE_VESTING_V2_START_TIMESTAMP missing for deployment");
+  if (!process.env.LOOPRING_INTERNAL_DISTRIBUTOR) return console.error("LOOPRING_INTERNAL_DISTRIBUTOR missing for deployment");
 
   if (["live", "live-fork"].indexOf(network) >= 0) {
     if (!process.env.LIVE_GAS_PRICE) return console.error("LIVE_GAS_PRICE is missing for live deployment");
@@ -33,6 +38,12 @@ module.exports = async function(deployer, network, accounts) {
     if (!process.env.UPGRADE_GOVERNANCE_OWNER_ADDRESS) return console.error("UPGRADE_GOVERNANCE_OWNER_ADDRESS is missing for upgrade");
     if (!process.env.UNISWAP_V2_PAIR_RGT_ETH) return console.error("UNISWAP_V2_PAIR_RGT_ETH is missing for upgrade");
     if (["live", "live-fork"].indexOf(network) >= 0 && !process.env.LIVE_UPGRADE_GOVERNANCE_OWNER_PRIVATE_KEY) return console.error("LIVE_UPGRADE_GOVERNANCE_OWNER_PRIVATE_KEY is missing for live upgrade");
+    
+    // Deploy RariGovernanceTokenDistributorV2 (passing in pool managers and tokens)
+    var rariGovernanceTokenDistributorV2 = await deployProxy(RariGovernanceTokenDistributorV2, [process.env.DISTRIBUTION_V2_START_BLOCK, [process.env.POOL_STABLE_MANAGER_ADDRESS, process.env.POOL_YIELD_MANAGER_ADDRESS, process.env.POOL_ETHEREUM_MANAGER_ADDRESS], [process.env.POOL_STABLE_TOKEN_ADDRESS, process.env.POOL_YIELD_TOKEN_ADDRESS, process.env.POOL_ETHEREUM_TOKEN_ADDRESS]], { deployer, unsafeAllowCustomTypes: true });
+
+    // Deploy RariGovernanceTokenVestingV2
+    var rariGovernanceTokenVestingV2 = await deployProxy(RariGovernanceTokenVestingV2, [process.env.PRIVATE_VESTING_V2_START_TIMESTAMP], { deployer });
 
     // Deploy RariGovernanceTokenUniswapDistributor
     var rariGovernanceTokenUniswapDistributor = await deployProxy(RariGovernanceTokenUniswapDistributor, [process.env.UNISWAP_DISTRIBUTION_START_BLOCK, process.env.UNISWAP_V2_PAIR_RGT_ETH], { deployer });
@@ -40,13 +51,16 @@ module.exports = async function(deployer, network, accounts) {
     // Upgrade RariGovernanceToken
     RariGovernanceToken.class_defaults.from = process.env.UPGRADE_GOVERNANCE_OWNER_ADDRESS;
     var rariGovernanceToken = await upgradeProxy(process.env.UPGRADE_GOVERNANCE_TOKEN_ADDRESS, RariGovernanceToken, { deployer });
-    await rariGovernanceToken.upgrade(process.env.UPGRADE_GOVERNANCE_TOKEN_DISTRIBUTOR_ADDRESS, process.env.UPGRADE_GOVERNANCE_TOKEN_VESTING_ADDRESS, ["live", "live-fork"].indexOf(network) >= 0 ? process.env.LIVE_GOVERNANCE_OWNER : process.env.DEVELOPMENT_ADDRESS, RariGovernanceTokenUniswapDistributor.address, ["live", "live-fork"].indexOf(network) >= 0 ? process.env.LIVE_GOVERNANCE_OWNER : process.env.DEVELOPMENT_ADDRESS, { from: process.env.UPGRADE_GOVERNANCE_OWNER_ADDRESS });
+    await rariGovernanceToken.upgrade(RariGovernanceTokenDistributorV2.address, RariGovernanceTokenVestingV2.address, RariGovernanceTokenUniswapDistributor.address, process.env.LOOPRING_INTERNAL_DISTRIBUTOR, { from: process.env.UPGRADE_GOVERNANCE_OWNER_ADDRESS });
 
-    // Connect RariGovernanceToken to RariGovernanceTokenUniswapDistributor
+    // Connect RariGovernanceToken to RariGovernanceTokenDistributorV2, RariGovernanceTokenUniswapDistributor, and RariGovernanceTokenVestingV2
+    await rariGovernanceTokenDistributorV2.setGovernanceToken(process.env.UPGRADE_GOVERNANCE_TOKEN_ADDRESS);
     await rariGovernanceTokenUniswapDistributor.setGovernanceToken(process.env.UPGRADE_GOVERNANCE_TOKEN_ADDRESS);
+    await rariGovernanceTokenVestingV2.setGovernanceToken(process.env.UPGRADE_GOVERNANCE_TOKEN_ADDRESS);
 
     if (["live", "live-fork"].indexOf(network) >= 0) {
       // Live network: transfer ownership of deployed contracts to live owner
+      await rariGovernanceTokenDistributorV2.transferOwnership(process.env.LIVE_GOVERNANCE_OWNER);
       await rariGovernanceTokenUniswapDistributor.transferOwnership(process.env.LIVE_GOVERNANCE_OWNER);
     } else {
       // Development network: transfer ownership of contracts to development address
@@ -77,6 +91,9 @@ module.exports = async function(deployer, network, accounts) {
     
     // Deploy RariGovernanceTokenDistributor (passing in pool managers and tokens)
     var rariGovernanceTokenDistributor = await deployProxy(RariGovernanceTokenDistributor, [process.env.DISTRIBUTION_START_BLOCK, [process.env.POOL_STABLE_MANAGER_ADDRESS, process.env.POOL_YIELD_MANAGER_ADDRESS, process.env.POOL_ETHEREUM_MANAGER_ADDRESS], [process.env.POOL_STABLE_TOKEN_ADDRESS, process.env.POOL_YIELD_TOKEN_ADDRESS, process.env.POOL_ETHEREUM_TOKEN_ADDRESS]], { deployer, unsafeAllowCustomTypes: true });
+    
+    // Deploy RariGovernanceTokenDistributorV2 (passing in pool managers and tokens)
+    var rariGovernanceTokenDistributorV2 = await deployProxy(RariGovernanceTokenDistributorV2, [process.env.DISTRIBUTION_V2_START_BLOCK, [process.env.POOL_STABLE_MANAGER_ADDRESS, process.env.POOL_YIELD_MANAGER_ADDRESS, process.env.POOL_ETHEREUM_MANAGER_ADDRESS], [process.env.POOL_STABLE_TOKEN_ADDRESS, process.env.POOL_YIELD_TOKEN_ADDRESS, process.env.POOL_ETHEREUM_TOKEN_ADDRESS]], { deployer, unsafeAllowCustomTypes: true });
 
     // Deploy RariGovernanceTokenUniswapDistributor
     var rariGovernanceTokenUniswapDistributor = await deployProxy(RariGovernanceTokenUniswapDistributor, [process.env.UNISWAP_DISTRIBUTION_START_BLOCK, "0x0000000000000000000000000000000000000000"], { deployer });
@@ -84,16 +101,21 @@ module.exports = async function(deployer, network, accounts) {
     // Deploy RariGovernanceTokenVesting
     var rariGovernanceTokenVesting = await deployProxy(RariGovernanceTokenVesting, [process.env.PRIVATE_VESTING_START_TIMESTAMP], { deployer });
 
+    // Deploy RariGovernanceTokenVestingV2
+    var rariGovernanceTokenVestingV2 = await deployProxy(RariGovernanceTokenVestingV2, [process.env.PRIVATE_VESTING_V2_START_TIMESTAMP], { deployer });
+
     // Deploy RariGovernanceToken (passing in the addresses of RariGovernanceTokenDistributor and RariGovernanceTokenVesting)
     var rariGovernanceToken = await deployProxy(RariGovernanceToken, [RariGovernanceTokenDistributor.address, RariGovernanceTokenVesting.address], { deployer });
 
     // Upgrade RariGovernanceToken
-    await rariGovernanceToken.upgrade(RariGovernanceTokenDistributor.address, RariGovernanceTokenVesting.address, ["live", "live-fork"].indexOf(network) >= 0 ? process.env.LIVE_GOVERNANCE_OWNER : process.env.DEVELOPMENT_ADDRESS, RariGovernanceTokenUniswapDistributor.address, ["live", "live-fork"].indexOf(network) >= 0 ? process.env.LIVE_GOVERNANCE_OWNER : process.env.DEVELOPMENT_ADDRESS);
+    await rariGovernanceToken.upgrade(RariGovernanceTokenDistributorV2.address, RariGovernanceTokenVestingV2.address, RariGovernanceTokenUniswapDistributor.address, process.env.LOOPRING_INTERNAL_DISTRIBUTOR);
 
-    // Connect RariGovernanceToken to RariGovernanceTokenDistributor, RariGovernanceTokenUniswapDistributor, and RariGovernanceTokenVesting
+    // Connect RariGovernanceToken to distributors and vesting contracts
     await rariGovernanceTokenDistributor.setGovernanceToken(RariGovernanceToken.address);
+    await rariGovernanceTokenDistributorV2.setGovernanceToken(RariGovernanceToken.address);
     await rariGovernanceTokenUniswapDistributor.setGovernanceToken(RariGovernanceToken.address);
     await rariGovernanceTokenVesting.setGovernanceToken(RariGovernanceToken.address);
+    await rariGovernanceTokenVestingV2.setGovernanceToken(process.env.UPGRADE_GOVERNANCE_TOKEN_ADDRESS);
 
     // Connect RariGovernanceTokenDistributor to pool managers and tokens
     var rariStablePoolToken = await IRariFundToken.at(process.env.POOL_STABLE_TOKEN_ADDRESS);
@@ -128,8 +150,10 @@ module.exports = async function(deployer, network, accounts) {
       await rariGovernanceToken.addPauser(process.env.LIVE_GOVERNANCE_OWNER);
       await rariGovernanceToken.renouncePauser();
       await rariGovernanceTokenDistributor.transferOwnership(process.env.LIVE_GOVERNANCE_OWNER);
+      await rariGovernanceTokenDistributorV2.transferOwnership(process.env.LIVE_GOVERNANCE_OWNER);
       await rariGovernanceTokenUniswapDistributor.transferOwnership(process.env.LIVE_GOVERNANCE_OWNER);
       await rariGovernanceTokenVesting.transferOwnership(process.env.LIVE_GOVERNANCE_OWNER);
+      await rariGovernanceTokenVestingV2.transferOwnership(process.env.LIVE_GOVERNANCE_OWNER);
       await admin.transferProxyAdminOwnership(process.env.LIVE_GOVERNANCE_OWNER);
     }
   }

@@ -32,7 +32,7 @@ contract("RariGovernanceTokenVesting", accounts => {
     var myUnclaimedRgt = await governanceTokenVestingInstance.getUnclaimedPrivateRgt.call(process.env.DEVELOPMENT_ADDRESS);
     assert(rgtAllocation.eq(myUnclaimedRgt));
 
-    // Claim half of all RGT
+    // Claim one third of all RGT
     var initialRgt = await governanceTokenInstance.balanceOf.call(process.env.DEVELOPMENT_ADDRESS);
     await governanceTokenVestingInstance.claimPrivateRgt(rgtAllocation.divn(3), { from: process.env.DEVELOPMENT_ADDRESS });
     var rgtAfterClaim = await governanceTokenInstance.balanceOf.call(process.env.DEVELOPMENT_ADDRESS);

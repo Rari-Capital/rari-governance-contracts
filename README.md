@@ -31,6 +31,9 @@ Make sure to configure the following `.env` variables:
     DISTRIBUTION_START_BLOCK=11094200
     PRIVATE_VESTING_START_TIMESTAMP=1603202400
     UNISWAP_DISTRIBUTION_START_BLOCK=11780000
+    DISTRIBUTION_V2_START_BLOCK=11094200
+    PRIVATE_VESTING_V2_START_TIMESTAMP=1603202400
+    LOOPRING_INTERNAL_DISTRIBUTOR=0x10dB6Bce3F2AE1589ec91A872213DAE59697967a
 
 The following `.env` variables must be configured for liquidity mining via the existing Rari Stable Pool `v2.4.0`, Yield Pool `v1.2.0`, and Ethereum Pool `v1.1.0`:
 
@@ -71,6 +74,9 @@ Make sure to configure the following `.env` variables:
     DISTRIBUTION_START_BLOCK=11094200
     PRIVATE_VESTING_START_TIMESTAMP=1603202400
     UNISWAP_DISTRIBUTION_START_BLOCK=11780000
+    DISTRIBUTION_V2_START_BLOCK=11094200
+    PRIVATE_VESTING_V2_START_TIMESTAMP=1603202400
+    LOOPRING_INTERNAL_DISTRIBUTOR=0x10dB6Bce3F2AE1589ec91A872213DAE59697967a
 
 The following `.env` variables must be configured for liquidity mining via the existing Rari Stable Pool `v2.4.0`, Yield Pool `v1.2.0`, and Ethereum Pool `v1.1.0`:
 
