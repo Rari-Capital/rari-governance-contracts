@@ -30,6 +30,7 @@ Make sure to configure the following `.env` variables:
 
     DISTRIBUTION_START_BLOCK=11094200
     PRIVATE_VESTING_START_TIMESTAMP=1603202400
+    UNISWAP_DISTRIBUTION_START_BLOCK=11780000
 
 The following `.env` variables must be configured for liquidity mining via the existing Rari Stable Pool `v2.4.0`, Yield Pool `v1.2.0`, and Ethereum Pool `v1.1.0`:
 
@@ -61,7 +62,7 @@ To run automated tests on the contracts on your private mainnet fork, run `npm t
 
 As an alterative to manually configuring existing pool manager and token addresses, `npm test` and `npm migrate-dev` can automatically run Ganache and deploy the Rari Stable Pool, Yield Pool, and/or Ethereum Pool to the `development` network (and configure the pool manager and token addresses environment variables) before deploying Rari Governance if the following variables in `.env` are set: `DEVELOPMENT_POOL_STABLE_CONTRACTS_DIRECTORY`, `DEVELOPMENT_POOL_STABLE_CONTRACTS_DIRECTORY`, and/or `DEVELOPMENT_POOL_STABLE_CONTRACTS_DIRECTORY`.
 
-To test Uniswap V2 liquidity rewards on a fresh set of contracts, create a Uniswap V2 pair for RGT/RTH and use the function `RariGovernanceTokenUniswapDistributor.setRgtEthUniswapV2Pair(IUniswapV2Pair _rgtEthUniswapV2Pair)` to enable RGT liquidity mining on the pair.
+To test Uniswap V2 liquidity rewards on a fresh set of contracts, create a Uniswap V2 pair for RGT/RTH and use the function `RariGovernanceTokenUniswapDistributor.setRgtEthUniswapV2Pair(IERC20 _rgtEthUniswapV2Pair)` to enable RGT liquidity mining on the pair.
 
 ## Live deployment
 
@@ -69,6 +70,7 @@ Make sure to configure the following `.env` variables:
 
     DISTRIBUTION_START_BLOCK=11094200
     PRIVATE_VESTING_START_TIMESTAMP=1603202400
+    UNISWAP_DISTRIBUTION_START_BLOCK=11780000
 
 The following `.env` variables must be configured for liquidity mining via the existing Rari Stable Pool `v2.4.0`, Yield Pool `v1.2.0`, and Ethereum Pool `v1.1.0`:
 
@@ -94,7 +96,7 @@ You must also set `LIVE_UPGRADE_GOVERNANCE_OWNER_PRIVATE_KEY`.
 
 Then, migrate: `truffle migrate --network live`
 
-To test Uniswap V2 liquidity rewards on a fresh set of contracts, create a Uniswap V2 pair for RGT/ETH and use the function `RariGovernanceTokenUniswapDistributor.setRgtEthUniswapV2Pair(IUniswapV2Pair _rgtEthUniswapV2Pair)` to enable RGT liquidity mining on the pair.
+To test Uniswap V2 liquidity rewards on a fresh set of contracts, create a Uniswap V2 pair for RGT/ETH and use the function `RariGovernanceTokenUniswapDistributor.setRgtEthUniswapV2Pair(IERC20 _rgtEthUniswapV2Pair)` to enable RGT liquidity mining on the pair.
 
 ## License
 

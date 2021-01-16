@@ -13,16 +13,18 @@ import "@openzeppelin/upgrades/contracts/Initializable.sol";
 import "@openzeppelin/contracts-ethereum-package/contracts/math/SafeMath.sol";
 import "@openzeppelin/contracts-ethereum-package/contracts/ownership/Ownable.sol";
 import "@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/SafeERC20.sol";
 
 import "./RariGovernanceToken.sol";
 
 /**
  * @title RariGovernanceToken
  * @author David Lucid <david@rari.capital> (https://github.com/davidlucid)
- * @notice RariGovernanceTokenDistributor distributes RGT (Rari Governance Token) to Rari Stable Pool, Yield Pool, and Ethereum Pool holders.
+ * @notice RariGovernanceTokenUniswapDistributor distributes RGT (Rari Governance Token) to Uniswap LP token holders.
  */
 contract RariGovernanceTokenUniswapDistributor is Initializable, Ownable {
     using SafeMath for uint256;
+    using SafeERC20 for IERC20;
 
     /**
      * @dev Initializer that reserves 8.75 million RGT for liquidity mining and 1.25 million RGT to the team.
@@ -84,12 +86,12 @@ contract RariGovernanceTokenUniswapDistributor is Initializable, Ownable {
     /**
      * @notice Starting block number of the distribution.
      */
-    uint256 private _distributionStartBlock;
+    uint256 public distributionStartBlock;
 
     /**
      * @notice Ending block number of the distribution.
      */
-    uint256 private _distributionEndBlock;
+    uint256 public distributionEndBlock;
 
     /**
      * @notice Length in blocks of the distribution period.
@@ -121,6 +123,42 @@ contract RariGovernanceTokenUniswapDistributor is Initializable, Ownable {
      * @dev Balances per address of staked Uniswap LP tokens.
      */
     mapping(address => uint256) public stakingBalances;
+
+    /**
+     * @dev Deposits `amount` Uniswap LP tokens from the sender to this staking contract.
+     * @param amount The amount of Uniswap LP tokens to deposit.
+     */
+    function deposit(uint256 amount) external enabled beforeDistributionPeriodEnded {
+        // Transfer RGT in from sender
+        rgtEthUniswapV2Pair.safeTransferFrom(msg.sender, address(this), amount);
+
+        if (block.number > distributionStartBlock) if (stakingBalances[msg.sender] > 0) {
+            // Distribute RGT to sender and update _rgtPerLpTokenAtLastDistribution
+            distributeRgt(msg.sender);
+        } else {
+            // Update _rgtPerLpTokenAtLastDistribution since this is their first deposit 
+            storeRgtDistributedToUniswap();
+            _rgtPerLpTokenAtLastDistribution[msg.sender] = _rgtPerLpTokenAtLastSpeedUpdate;
+        }
+
+        // Add to staking balance
+        stakingBalances[msg.sender] = stakingBalances[msg.sender].add(amount);
+    }
+
+    /**
+     * @dev Deposits `amount` Uniswap LP tokens from the sender to this staking contract.
+     * @param amount The amount of Uniswap LP tokens to deposit.
+     */
+    function withdraw(uint256 amount) external enabled {
+        // Subtract from staking balance
+        stakingBalances[msg.sender] = stakingBalances[msg.sender].sub(amount);
+
+        // Distribute RGT to sender
+        if (block.number > distributionStartBlock) distributeRgt(msg.sender);
+
+        // Transfer RGT out to sender
+        rgtEthUniswapV2Pair.safeTransfer(msg.sender, amount);
+    }
 
     /**
      * @dev Quantity of RGT distributed per staked Uniswap LP token at the last speed update.
@@ -162,9 +200,9 @@ contract RariGovernanceTokenUniswapDistributor is Initializable, Ownable {
     }
 
     /**
-     * @dev Gets RGT distributed per RFT for all pools.
+     * @dev Gets RGT distributed per staked Uniswap LP token.
      */
-    function getRgtDistributedPerRft() internal view returns (uint256) {
+    function getRgtDistributedPerLpToken() internal view returns (uint256) {
         // Calculate RGT to distribute since last update and validate
         uint256 rgtDistributed = getRgtDistributed(block.number);
         uint256 rgtToDistribute = rgtDistributed.sub(_rgtDistributedAtLastSpeedUpdate);
@@ -190,7 +228,7 @@ contract RariGovernanceTokenUniswapDistributor is Initializable, Ownable {
      * @param holder The holder of staked Uniswap LP tokens whose RGT is to be distributed.
      * @return The quantity of RGT distributed.
      */
-    function distributeRgt(address holder) external enabled returns (uint256) {
+    function distributeRgt(address holder) public enabled returns (uint256) {
         // Get LP token balance of this holder
         uint256 stakingBalance = stakingBalances[holder];
         if (stakingBalance <= 0) return 0;
@@ -209,37 +247,20 @@ contract RariGovernanceTokenUniswapDistributor is Initializable, Ownable {
     }
 
     /**
-     * @dev Stores the RGT distributed per LP token right before `holder`'s first staking deposit since having a zero balance.
-     * @param holder The holder of Uniswap LP tokens.
-     */
-    function beforeFirstLpTokenDeposit(address holder, RariPool pool) external enabled {
-        require(rariFundTokens[uint8(pool)].balanceOf(holder) == 0, "Pool token balance is not equal to 0.");
-        storeRgtDistributedPerRftAndToUniswap();
-        _rgtPerRftAtLastDistribution[uint8(pool)][holder] = _rgtPerRftAtLastSpeedUpdate[uint8(pool)];
-    }
-
-    /**
      * @dev Returns the quantity of undistributed RGT earned by `holder` via liquidity mining.
      * @param holder The holder of staked Uniswap LP tokens.
      * @return The quantity of unclaimed RGT.
      */
     function getUndistributedRgt(address holder) internal view returns (uint256) {
-        // Get RGT distributed per LP token
+        // Get RGT distributed per staked LP token
         uint256 rgtPerLpToken = getRgtDistributedPerLpToken();
 
+        // Get staked LP token balance of this holder in this pool
+        uint256 stakingBalance = stakingBalances[holder];
+        if (stakingBalance <= 0) return 0;
+
         // Get undistributed RGT
-        uint256 undistributedRgt = 0;
-
-        for (uint256 i = 0; i < 3; i++) {
-            // Get RFT balance of this holder in this pool
-            uint256 stakingBalance = stakingBalances[holder];
-            if (stakingBalance <= 0) continue;
-
-            // Add undistributed RGT
-            undistributedRgt += rgtPerLpToken.sub(_rgtPerLpTokenAtLastDistribution[holder]).mul(stakingBalance).div(1e18);
-        }
-
-        return undistributedRgt;
+        return rgtPerLpToken.sub(_rgtPerLpTokenAtLastDistribution[holder]).mul(stakingBalance).div(1e18);
     }
 
     /**
@@ -305,12 +326,12 @@ contract RariGovernanceTokenUniswapDistributor is Initializable, Ownable {
     /**
      * @dev The IUniswapV2Pair contract for the RGT/ETH Uniswap V2 pair.
      */
-    IUniswapV2Pair public rgtEthUniswapV2Pair;
+    IERC20 public rgtEthUniswapV2Pair;
 
     /**
      * @dev Sets the IUniswapV2Pair contract for the RGT/ETH Uniswap V2 pair.
      */
-    function setRgtEthUniswapV2Pair(IUniswapV2Pair _rgtEthUniswapV2Pair) external onlyOwner {
+    function setRgtEthUniswapV2Pair(IERC20 _rgtEthUniswapV2Pair) external onlyOwner {
         rgtEthUniswapV2Pair = _rgtEthUniswapV2Pair;
     }
 }

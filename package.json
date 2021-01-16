@@ -36,7 +36,6 @@
   "dependencies": {
     "@chainlink/contracts": "0.0.9",
     "@openzeppelin/contracts-ethereum-package": "^2.5.0",
-    "@openzeppelin/upgrades": "^2.8.0",
-    "@uniswap/v2-core": "^1.0.1"
+    "@openzeppelin/upgrades": "^2.8.0"
   }
 }
