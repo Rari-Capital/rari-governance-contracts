@@ -58,6 +58,34 @@ module.exports = async function(deployer, network, accounts) {
     await rariGovernanceTokenUniswapDistributor.setGovernanceToken(process.env.UPGRADE_GOVERNANCE_TOKEN_ADDRESS);
     await rariGovernanceTokenVestingV2.setGovernanceToken(process.env.UPGRADE_GOVERNANCE_TOKEN_ADDRESS);
 
+    // Connect RariGovernanceTokenDistributor to pool managers and tokens
+    var rariStablePoolToken = await IRariFundToken.at(process.env.POOL_STABLE_TOKEN_ADDRESS);
+    
+    try {
+      await rariStablePoolToken.setGovernanceTokenDistributor(rariGovernanceTokenDistributorV2.address, ["live", "live-fork"].indexOf(network) < 0, { from: process.env.POOL_OWNER });
+    } catch (error) {
+      if (["live", "live-fork"].indexOf(network) < 0 && error.message.indexOf("MinterRole: caller does not have the Minter role") >= 0) await rariStablePoolToken.setGovernanceTokenDistributor(rariGovernanceTokenDistributorV2.address, ["live", "live-fork"].indexOf(network) < 0);
+      else return console.error(error);
+    }
+    
+    var rariYieldPoolToken = await IRariFundToken.at(process.env.POOL_YIELD_TOKEN_ADDRESS);
+  
+    try {
+      await rariYieldPoolToken.setGovernanceTokenDistributor(rariGovernanceTokenDistributorV2.address, ["live", "live-fork"].indexOf(network) < 0, { from: process.env.POOL_OWNER });
+    } catch (error) {
+      if (["live", "live-fork"].indexOf(network) < 0 && error.message.indexOf("MinterRole: caller does not have the Minter role") >= 0) await rariYieldPoolToken.setGovernanceTokenDistributor(rariGovernanceTokenDistributorV2.address, ["live", "live-fork"].indexOf(network) < 0);
+      else return console.error(error);
+    }
+    
+    var rariEthereumPoolToken = await IRariFundToken.at(process.env.POOL_ETHEREUM_TOKEN_ADDRESS);
+    
+    try {
+      await rariEthereumPoolToken.setGovernanceTokenDistributor(rariGovernanceTokenDistributorV2.address, ["live", "live-fork"].indexOf(network) < 0, { from: process.env.POOL_OWNER });
+    } catch (error) {
+      if (["live", "live-fork"].indexOf(network) < 0 && error.message.indexOf("MinterRole: caller does not have the Minter role") >= 0) await rariEthereumPoolToken.setGovernanceTokenDistributor(rariGovernanceTokenDistributorV2.address, ["live", "live-fork"].indexOf(network) < 0);
+      else return console.error(error);
+    }
+
     if (["live", "live-fork"].indexOf(network) >= 0) {
       // Live network: transfer ownership of deployed contracts to live owner
       await rariGovernanceTokenDistributorV2.transferOwnership(process.env.LIVE_GOVERNANCE_OWNER);
@@ -118,30 +146,32 @@ module.exports = async function(deployer, network, accounts) {
     await rariGovernanceTokenVestingV2.setGovernanceToken(RariGovernanceToken.address);
 
     // Connect RariGovernanceTokenDistributor to pool managers and tokens
+    var activeDistributor = (await web3.eth.getBlockNumber()) >= parseInt(process.env.DISTRIBUTION_START_BLOCK) + 390000 ? RariGovernanceTokenDistributorV2.address : RariGovernanceTokenDistributor.address;
+
     var rariStablePoolToken = await IRariFundToken.at(process.env.POOL_STABLE_TOKEN_ADDRESS);
     
     try {
-      await rariStablePoolToken.setGovernanceTokenDistributor(RariGovernanceTokenDistributor.address, ["live", "live-fork"].indexOf(network) < 0, { from: process.env.POOL_OWNER });
+      await rariStablePoolToken.setGovernanceTokenDistributor(activeDistributor, ["live", "live-fork"].indexOf(network) < 0, { from: process.env.POOL_OWNER });
     } catch (error) {
-      if (["live", "live-fork"].indexOf(network) < 0 && error.message.indexOf("MinterRole: caller does not have the Minter role") >= 0) await rariStablePoolToken.setGovernanceTokenDistributor(RariGovernanceTokenDistributor.address, ["live", "live-fork"].indexOf(network) < 0);
+      if (["live", "live-fork"].indexOf(network) < 0 && error.message.indexOf("MinterRole: caller does not have the Minter role") >= 0) await rariStablePoolToken.setGovernanceTokenDistributor(activeDistributor, ["live", "live-fork"].indexOf(network) < 0);
       else return console.error(error);
     }
     
     var rariYieldPoolToken = await IRariFundToken.at(process.env.POOL_YIELD_TOKEN_ADDRESS);
   
     try {
-      await rariYieldPoolToken.setGovernanceTokenDistributor(RariGovernanceTokenDistributor.address, ["live", "live-fork"].indexOf(network) < 0, { from: process.env.POOL_OWNER });
+      await rariYieldPoolToken.setGovernanceTokenDistributor(activeDistributor, ["live", "live-fork"].indexOf(network) < 0, { from: process.env.POOL_OWNER });
     } catch (error) {
-      if (["live", "live-fork"].indexOf(network) < 0 && error.message.indexOf("MinterRole: caller does not have the Minter role") >= 0) await rariYieldPoolToken.setGovernanceTokenDistributor(RariGovernanceTokenDistributor.address, ["live", "live-fork"].indexOf(network) < 0);
+      if (["live", "live-fork"].indexOf(network) < 0 && error.message.indexOf("MinterRole: caller does not have the Minter role") >= 0) await rariYieldPoolToken.setGovernanceTokenDistributor(activeDistributor, ["live", "live-fork"].indexOf(network) < 0);
       else return console.error(error);
     }
     
     var rariEthereumPoolToken = await IRariFundToken.at(process.env.POOL_ETHEREUM_TOKEN_ADDRESS);
     
     try {
-      await rariEthereumPoolToken.setGovernanceTokenDistributor(RariGovernanceTokenDistributor.address, ["live", "live-fork"].indexOf(network) < 0, { from: process.env.POOL_OWNER });
+      await rariEthereumPoolToken.setGovernanceTokenDistributor(activeDistributor, ["live", "live-fork"].indexOf(network) < 0, { from: process.env.POOL_OWNER });
     } catch (error) {
-      if (["live", "live-fork"].indexOf(network) < 0 && error.message.indexOf("MinterRole: caller does not have the Minter role") >= 0) await rariEthereumPoolToken.setGovernanceTokenDistributor(RariGovernanceTokenDistributor.address, ["live", "live-fork"].indexOf(network) < 0);
+      if (["live", "live-fork"].indexOf(network) < 0 && error.message.indexOf("MinterRole: caller does not have the Minter role") >= 0) await rariEthereumPoolToken.setGovernanceTokenDistributor(activeDistributor, ["live", "live-fork"].indexOf(network) < 0);
       else return console.error(error);
     }
 

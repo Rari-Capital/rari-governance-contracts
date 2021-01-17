@@ -29,7 +29,6 @@ contract RariGovernanceTokenDistributorV2 is RariGovernanceTokenDistributor {
 
     /**
      * @notice Returns the amount of RGT earned via liquidity mining at the given `blockNumber`.
-     * See the following graph for a visualization of RGT distributed via liquidity mining vs. blocks since distribution started: https://www.desmos.com/calculator/2yvnflg4ir
      * @param blockNumber The block number to check.
      */
     function getRgtDistributed(uint256 blockNumber) public view returns (uint256) {
@@ -37,5 +36,12 @@ contract RariGovernanceTokenDistributorV2 is RariGovernanceTokenDistributor {
         if (blockNumber >= distributionEndBlock) return FINAL_RGT_DISTRIBUTION;
         uint256 blocks = blockNumber.sub(distributionStartBlock);
         return FINAL_RGT_DISTRIBUTION.mul(blocks).div(DISTRIBUTION_PERIOD);
+    }
+
+    /**
+     * @notice Returns the public RGT claim fee for users during liquidity mining (scaled by 1e18) at `blockNumber`.
+     */
+    function getPublicRgtClaimFee(uint256 blockNumber) public view returns (uint256) {
+        return 0;
     }
 }
