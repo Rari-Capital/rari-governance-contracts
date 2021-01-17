@@ -115,7 +115,7 @@ module.exports = async function(deployer, network, accounts) {
     await rariGovernanceTokenDistributorV2.setGovernanceToken(RariGovernanceToken.address);
     await rariGovernanceTokenUniswapDistributor.setGovernanceToken(RariGovernanceToken.address);
     await rariGovernanceTokenVesting.setGovernanceToken(RariGovernanceToken.address);
-    await rariGovernanceTokenVestingV2.setGovernanceToken(process.env.UPGRADE_GOVERNANCE_TOKEN_ADDRESS);
+    await rariGovernanceTokenVestingV2.setGovernanceToken(RariGovernanceToken.address);
 
     // Connect RariGovernanceTokenDistributor to pool managers and tokens
     var rariStablePoolToken = await IRariFundToken.at(process.env.POOL_STABLE_TOKEN_ADDRESS);

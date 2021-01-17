@@ -106,9 +106,9 @@ contract RariGovernanceTokenVestingV2 is Initializable, Ownable {
      * @return The quantity of distributed RGT.
      */
     function getDistributedPrivateRgt(uint256 timestamp, address holder) public view returns (uint256) {
-        if (timestamp <= privateVestingStartTimestamp) return 1e18;
-        if (timestamp >= privateVestingEndTimestamp) return 0;
-        return privateRgtAllocations[holder].mul(privateVestingEndTimestamp.sub(timestamp)).div(PRIVATE_VESTING_PERIOD);
+        if (timestamp <= privateVestingStartTimestamp) return 0;
+        if (timestamp >= privateVestingEndTimestamp) return privateRgtAllocations[holder];
+        return privateRgtAllocations[holder].mul(timestamp.sub(privateVestingStartTimestamp)).div(PRIVATE_VESTING_PERIOD);
     }
 
     /**
