@@ -81,6 +81,9 @@ contract("RariGovernanceTokenDistributor", accounts => {
     let yieldPoolTokenInstance = await IRariFundToken.at(process.env.POOL_YIELD_TOKEN_ADDRESS);
     let ethereumPoolManagerInstance = await IRariFundManager.at(process.env.POOL_ETHEREUM_MANAGER_ADDRESS);
     let ethereumPoolTokenInstance = await IRariFundToken.at(process.env.POOL_ETHEREUM_TOKEN_ADDRESS);
+    
+    // Connect RariGovernanceTokenDistributor to pool managers and tokens
+    await connectGovernanceTokenDistributorV1();
 
     // Burn all RSPT, RYPT, and REPT
     await stablePoolTokenInstance.burn(await stablePoolTokenInstance.balanceOf.call(process.env.DEVELOPMENT_ADDRESS), { from: process.env.DEVELOPMENT_ADDRESS });
@@ -199,4 +202,34 @@ async function pass100BlocksAndGetRgtPerRspt(stablePoolManagerInstance, yieldPoo
   var rsptTotalSupply = await stablePoolTokenInstance.totalSupply.call();
   var stablePoolRgtPerRspt = rgtDistributed.mul(stablePoolFundBalance).div(poolFundBalanceSum).mul(web3.utils.toBN(1e18)).div(rsptTotalSupply);
   return stablePoolRgtPerRspt;
+}
+
+async function connectGovernanceTokenDistributorV1() {
+  // Connect RariGovernanceTokenDistributor to pool managers and tokens
+  var rariStablePoolToken = await IRariFundToken.at(process.env.POOL_STABLE_TOKEN_ADDRESS);
+
+  try {
+    await rariStablePoolToken.setGovernanceTokenDistributor(RariGovernanceTokenDistributor.address, true, { from: process.env.POOL_OWNER });
+  } catch (error) {
+    if (error.message.indexOf("MinterRole: caller does not have the Minter role") >= 0) await rariStablePoolToken.setGovernanceTokenDistributor(RariGovernanceTokenDistributor.address, true);
+    else throw error;
+  }
+  
+  var rariYieldPoolToken = await IRariFundToken.at(process.env.POOL_YIELD_TOKEN_ADDRESS);
+
+  try {
+    await rariYieldPoolToken.setGovernanceTokenDistributor(RariGovernanceTokenDistributor.address, true, { from: process.env.POOL_OWNER });
+  } catch (error) {
+    if (error.message.indexOf("MinterRole: caller does not have the Minter role") >= 0) await rariYieldPoolToken.setGovernanceTokenDistributor(RariGovernanceTokenDistributor.address, true);
+    else throw error;
+  }
+  
+  var rariEthereumPoolToken = await IRariFundToken.at(process.env.POOL_ETHEREUM_TOKEN_ADDRESS);
+  
+  try {
+    await rariEthereumPoolToken.setGovernanceTokenDistributor(RariGovernanceTokenDistributor.address, true, { from: process.env.POOL_OWNER });
+  } catch (error) {
+    if (error.message.indexOf("MinterRole: caller does not have the Minter role") >= 0) await rariEthereumPoolToken.setGovernanceTokenDistributor(RariGovernanceTokenDistributor.address, true);
+    else throw error;
+  }
 }
