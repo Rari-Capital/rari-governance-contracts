@@ -12,7 +12,7 @@ const RariGovernanceTokenUniswapDistributor = artifacts.require("RariGovernanceT
 const IERC20 = artifacts.require("IERC20");
 
 const DISTRIBUTION_PERIOD = 6500 * 365 * 3;
-const FINAL_RGT_DISTRIBUTION = web3.utils.toBN("556798834975625333367546").muln(80).divn(100);
+const FINAL_RGT_DISTRIBUTION = web3.utils.toBN("568717819057309757517546").muln(80).divn(100);
 
 function getRgtDistributed(blockNumber) {
   var startBlock = parseInt(process.env.UNISWAP_DISTRIBUTION_START_BLOCK);

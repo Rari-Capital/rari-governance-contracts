@@ -43,7 +43,7 @@ contract RariGovernanceToken is Initializable, ERC20, ERC20Detailed, ERC20Burnab
         require(!upgraded, "Already upgraded.");
         _mint(distributorV2, 3000000 * (10 ** uint256(decimals())));
         _mint(vestingV2, 7000000 * (10 ** uint256(decimals())));
-        uint256 exchangeLiquidityRewards = 556798834975625333367546;
+        uint256 exchangeLiquidityRewards = 568717819057309757517546;
         uint256 uniswapRewards = exchangeLiquidityRewards.mul(80).div(100);
         _mint(uniswapDistributor, uniswapRewards);
         _mint(loopringDistributor, exchangeLiquidityRewards.sub(uniswapRewards));

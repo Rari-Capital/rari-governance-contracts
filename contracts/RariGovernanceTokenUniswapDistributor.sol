@@ -101,7 +101,7 @@ contract RariGovernanceTokenUniswapDistributor is Initializable, Ownable {
     /**
      * @notice Total and final quantity of all RGT to be distributed by the end of the period.
      */
-    uint256 public constant FINAL_RGT_DISTRIBUTION = uint256(556798834975625333367546) * 80 / 100;
+    uint256 public constant FINAL_RGT_DISTRIBUTION = uint256(568717819057309757517546) * 80 / 100;
 
     /**
      * @notice Returns the amount of RGT earned via liquidity mining at the given `blockNumber`.
