@@ -334,6 +334,8 @@ contract RariGovernanceTokenUniswapDistributor is Initializable, Ownable {
      * @dev Sets the IUniswapV2Pair contract for the RGT/ETH Uniswap V2 pair.
      */
     function setRgtEthUniswapV2Pair(IERC20 _rgtEthUniswapV2Pair) external onlyOwner {
+        require(_rgtEthUniswapV2Pair != address(0), "LP token contract cannot be the zero address.");
+        require(totalStaked == 0, "Users have staked LP tokens already, so the LP token contract cannot be changed.");
         rgtEthUniswapV2Pair = _rgtEthUniswapV2Pair;
     }
 }
