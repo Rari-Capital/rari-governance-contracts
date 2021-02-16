@@ -33,7 +33,6 @@ contract("RariGovernanceTokenVestingV2", accounts => {
     // Check unclaimed RGT
     var myUnclaimedRgt = await governanceTokenVestingInstance.getUnclaimedPrivateRgt.call(process.env.DEVELOPMENT_ADDRESS);
     var myEstimatedRgt = getRgtDistributed(Math.trunc((new Date()).getTime() / 1000), rgtAllocation);
-    console.log(myUnclaimedRgt.toString(), myEstimatedRgt.toString());
     assert(myEstimatedRgt.gte(myUnclaimedRgt.muln(999).divn(1000)) && myEstimatedRgt.lte(myUnclaimedRgt.muln(1001).divn(1000)));
 
     // Claim one third of all available RGT

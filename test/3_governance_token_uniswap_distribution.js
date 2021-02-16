@@ -29,10 +29,10 @@ contract("RariGovernanceTokenUniswapDistributor", accounts => {
     // Test Solidity and JS
     for (const [blocks, expected] of [
       [0, "0"],
-      [6500, "406793669388584718442"],
-      [6500 * 30, "12203810081657541553261"],
-      [6500 * 365, "148479689326833422231345"],
-      [6500 * 365 * 3, "445439067980500266694036"]
+      [6500, "415501602964244571702"],
+      [6500 * 30, "12465048088927337151069"],
+      [6500 * 365, "151658085081949268671345"],
+      [6500 * 365 * 3, "454974255245847806014036"]
     ]) {
       var rgtExpected = web3.utils.toBN(expected);
       var rgtDistributedSolidity = await governanceTokenUniswapDistributorInstance.getRgtDistributed.call(parseInt(process.env.UNISWAP_DISTRIBUTION_START_BLOCK) + blocks);
