@@ -40,7 +40,7 @@ module.exports = async function(deployer, network, accounts) {
     if (["live", "live-fork"].indexOf(network) >= 0 && !process.env.LIVE_UPGRADE_GOVERNANCE_OWNER_PRIVATE_KEY) return console.error("LIVE_UPGRADE_GOVERNANCE_OWNER_PRIVATE_KEY is missing for live upgrade");
     
     // Deploy RariGovernanceTokenDistributorV2 (passing in pool managers and tokens)
-    var rariGovernanceTokenDistributorV2 = await deployProxy(RariGovernanceTokenDistributorV2, [process.env.DISTRIBUTION_V2_START_BLOCK, [process.env.POOL_STABLE_MANAGER_ADDRESS, process.env.POOL_YIELD_MANAGER_ADDRESS, process.env.POOL_ETHEREUM_MANAGER_ADDRESS], [process.env.POOL_STABLE_TOKEN_ADDRESS, process.env.POOL_YIELD_TOKEN_ADDRESS, process.env.POOL_ETHEREUM_TOKEN_ADDRESS]], { deployer, unsafeAllowCustomTypes: true });
+    var rariGovernanceTokenDistributorV2 = await deployProxy(RariGovernanceTokenDistributorV2, [process.env.DISTRIBUTION_V2_START_BLOCK, [process.env.POOL_STABLE_MANAGER_ADDRESS, process.env.POOL_YIELD_MANAGER_ADDRESS, process.env.POOL_ETHEREUM_MANAGER_ADDRESS], [process.env.POOL_STABLE_TOKEN_ADDRESS, process.env.POOL_YIELD_TOKEN_ADDRESS, process.env.POOL_ETHEREUM_TOKEN_ADDRESS]], { deployer });
 
     // Deploy RariGovernanceTokenVestingV2
     var rariGovernanceTokenVestingV2 = await deployProxy(RariGovernanceTokenVestingV2, [process.env.PRIVATE_VESTING_V2_START_TIMESTAMP], { deployer });
@@ -50,7 +50,7 @@ module.exports = async function(deployer, network, accounts) {
 
     // Upgrade RariGovernanceToken
     RariGovernanceToken.class_defaults.from = process.env.UPGRADE_GOVERNANCE_OWNER_ADDRESS;
-    var rariGovernanceToken = await upgradeProxy(process.env.UPGRADE_GOVERNANCE_TOKEN_ADDRESS, RariGovernanceToken, { deployer });
+    var rariGovernanceToken = await upgradeProxy(process.env.UPGRADE_GOVERNANCE_TOKEN_ADDRESS, RariGovernanceToken, { deployer, unsafeAllowCustomTypes: true });
     await rariGovernanceToken.upgrade(RariGovernanceTokenDistributorV2.address, RariGovernanceTokenVestingV2.address, RariGovernanceTokenUniswapDistributor.address, process.env.LOOPRING_INTERNAL_DISTRIBUTOR, { from: process.env.UPGRADE_GOVERNANCE_OWNER_ADDRESS });
 
     // Connect RariGovernanceToken to RariGovernanceTokenDistributorV2, RariGovernanceTokenUniswapDistributor, and RariGovernanceTokenVestingV2
@@ -118,10 +118,10 @@ module.exports = async function(deployer, network, accounts) {
     if (await rariEthereumPoolManager.rariFundToken.call() !== process.env.POOL_ETHEREUM_TOKEN_ADDRESS) return console.error("Mismatch between POOL_ETHEREUM_TOKEN_ADDRESS and RariFundToken set on POOL_ETHEREUM_MANAGER_ADDRESS");
     
     // Deploy RariGovernanceTokenDistributor (passing in pool managers and tokens)
-    var rariGovernanceTokenDistributor = await deployProxy(RariGovernanceTokenDistributor, [process.env.DISTRIBUTION_START_BLOCK, [process.env.POOL_STABLE_MANAGER_ADDRESS, process.env.POOL_YIELD_MANAGER_ADDRESS, process.env.POOL_ETHEREUM_MANAGER_ADDRESS], [process.env.POOL_STABLE_TOKEN_ADDRESS, process.env.POOL_YIELD_TOKEN_ADDRESS, process.env.POOL_ETHEREUM_TOKEN_ADDRESS]], { deployer, unsafeAllowCustomTypes: true });
+    var rariGovernanceTokenDistributor = await deployProxy(RariGovernanceTokenDistributor, [process.env.DISTRIBUTION_START_BLOCK, [process.env.POOL_STABLE_MANAGER_ADDRESS, process.env.POOL_YIELD_MANAGER_ADDRESS, process.env.POOL_ETHEREUM_MANAGER_ADDRESS], [process.env.POOL_STABLE_TOKEN_ADDRESS, process.env.POOL_YIELD_TOKEN_ADDRESS, process.env.POOL_ETHEREUM_TOKEN_ADDRESS]], { deployer });
     
     // Deploy RariGovernanceTokenDistributorV2 (passing in pool managers and tokens)
-    var rariGovernanceTokenDistributorV2 = await deployProxy(RariGovernanceTokenDistributorV2, [process.env.DISTRIBUTION_V2_START_BLOCK, [process.env.POOL_STABLE_MANAGER_ADDRESS, process.env.POOL_YIELD_MANAGER_ADDRESS, process.env.POOL_ETHEREUM_MANAGER_ADDRESS], [process.env.POOL_STABLE_TOKEN_ADDRESS, process.env.POOL_YIELD_TOKEN_ADDRESS, process.env.POOL_ETHEREUM_TOKEN_ADDRESS]], { deployer, unsafeAllowCustomTypes: true });
+    var rariGovernanceTokenDistributorV2 = await deployProxy(RariGovernanceTokenDistributorV2, [process.env.DISTRIBUTION_V2_START_BLOCK, [process.env.POOL_STABLE_MANAGER_ADDRESS, process.env.POOL_YIELD_MANAGER_ADDRESS, process.env.POOL_ETHEREUM_MANAGER_ADDRESS], [process.env.POOL_STABLE_TOKEN_ADDRESS, process.env.POOL_YIELD_TOKEN_ADDRESS, process.env.POOL_ETHEREUM_TOKEN_ADDRESS]], { deployer });
 
     // Deploy RariGovernanceTokenUniswapDistributor
     var rariGovernanceTokenUniswapDistributor = await deployProxy(RariGovernanceTokenUniswapDistributor, [process.env.UNISWAP_DISTRIBUTION_START_BLOCK, "0x0000000000000000000000000000000000000000"], { deployer });
