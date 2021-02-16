@@ -51,7 +51,8 @@ module.exports = async function(deployer, network, accounts) {
     // Upgrade RariGovernanceToken
     RariGovernanceToken.class_defaults.from = process.env.UPGRADE_GOVERNANCE_OWNER_ADDRESS;
     var rariGovernanceToken = await upgradeProxy(process.env.UPGRADE_GOVERNANCE_TOKEN_ADDRESS, RariGovernanceToken, { deployer, unsafeAllowCustomTypes: true });
-    await rariGovernanceToken.upgrade(RariGovernanceTokenDistributorV2.address, RariGovernanceTokenVestingV2.address, RariGovernanceTokenUniswapDistributor.address, process.env.LOOPRING_INTERNAL_DISTRIBUTOR, { from: process.env.UPGRADE_GOVERNANCE_OWNER_ADDRESS });
+    await rariGovernanceToken.upgrade1(RariGovernanceTokenUniswapDistributor.address, process.env.LOOPRING_INTERNAL_DISTRIBUTOR, { from: process.env.UPGRADE_GOVERNANCE_OWNER_ADDRESS });
+    await rariGovernanceToken.upgrade2(RariGovernanceTokenDistributorV2.address, RariGovernanceTokenVestingV2.address, { from: process.env.UPGRADE_GOVERNANCE_OWNER_ADDRESS });
 
     // Connect RariGovernanceToken to RariGovernanceTokenDistributorV2, RariGovernanceTokenUniswapDistributor, and RariGovernanceTokenVestingV2
     await rariGovernanceTokenDistributorV2.setGovernanceToken(process.env.UPGRADE_GOVERNANCE_TOKEN_ADDRESS);
@@ -136,7 +137,8 @@ module.exports = async function(deployer, network, accounts) {
     var rariGovernanceToken = await deployProxy(RariGovernanceToken, [RariGovernanceTokenDistributor.address, RariGovernanceTokenVesting.address], { deployer });
 
     // Upgrade RariGovernanceToken
-    await rariGovernanceToken.upgrade(RariGovernanceTokenDistributorV2.address, RariGovernanceTokenVestingV2.address, RariGovernanceTokenUniswapDistributor.address, process.env.LOOPRING_INTERNAL_DISTRIBUTOR);
+    await rariGovernanceToken.upgrade1(RariGovernanceTokenUniswapDistributor.address, process.env.LOOPRING_INTERNAL_DISTRIBUTOR);
+    await rariGovernanceToken.upgrade2(RariGovernanceTokenDistributorV2.address, RariGovernanceTokenVestingV2.address);
 
     // Connect RariGovernanceToken to distributors and vesting contracts
     await rariGovernanceTokenDistributor.setGovernanceToken(RariGovernanceToken.address);
