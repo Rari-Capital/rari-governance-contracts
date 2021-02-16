@@ -8,7 +8,9 @@ As follows are all deployments of our smart contracts on the Ethereum mainnet. S
 
 `RariGovernanceToken` is the contract behind the Rari Governance Token (RGT), an ERC20 token accounting for the ownership of Rari Stable Pool, Yield Pool, and Ethereum Pool.
 
-**v1.0.0**: `0xD291E7a03283640FDc51b121aC401383A46cC623`
+**v1.4.0**: `0xD291E7a03283640FDc51b121aC401383A46cC623`
+
+Implementation contract: `0xe55835bdf0b99158975a61a3ef0f3c63027ea105`
 
 ### `RariGovernanceTokenDistributor`
 
@@ -18,9 +20,11 @@ As follows are all deployments of our smart contracts on the Ethereum mainnet. S
 
 ### `RariGovernanceTokenUniswapDistributor`
 
-`RariGovernanceTokenUniswapDistributor` distributes RGT (Rari Governance Token) to liquidity providers for the RGT/ETH Uniswap V2 Pair.
+`RariGovernanceTokenUniswapDistributor` distributes RGT (Rari Governance Token) to liquidity providers for the official ETH-RGT SushiSwap pair.
 
-**v1.4.0**: (not yet deployed)
+**v1.4.0**: `0x1FA69a416bCF8572577d3949b742fBB0a9CD98c7`
+
+Implementation contract: `0x2197eCc5b1EA917ADcF02DcC4343b0e9B8A8C99c`
 
 ### `RariGovernanceTokenVesting`
 
@@ -29,6 +33,10 @@ As follows are all deployments of our smart contracts on the Ethereum mainnet. S
 **v1.2.0**: `0xA54B473028f4ba881F1eD6B670af4103e8F9B98a`
 
 ## Older Versions
+
+### `RariGovernanceToken`
+
+**v1.0.0**: `0xD291E7a03283640FDc51b121aC401383A46cC623`
 
 ### `RariGovernanceTokenDistributor`
 
