@@ -90,6 +90,7 @@ module.exports = async function(deployer, network, accounts) {
     if (["live", "live-fork"].indexOf(network) >= 0) {
       // Live network: transfer ownership of deployed contracts to live owner
       await rariGovernanceTokenDistributorV2.transferOwnership(process.env.LIVE_GOVERNANCE_OWNER);
+      await rariGovernanceTokenVestingV2.transferOwnership(process.env.LIVE_GOVERNANCE_OWNER);
       await rariGovernanceTokenUniswapDistributor.transferOwnership(process.env.LIVE_GOVERNANCE_OWNER);
     } else {
       // Development network: transfer ownership of contracts to development address
