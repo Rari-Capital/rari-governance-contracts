@@ -21,6 +21,12 @@ import "@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/ERC20Paus
  * @notice RariGovernanceToken is the contract behind the Rari Governance Token (RGT), an ERC20 token accounting for the ownership of Rari Stable Pool, Yield Pool, and Ethereum Pool.
  */
 contract RariGovernanceToken is Initializable, ERC20, ERC20Detailed, ERC20Burnable, ERC20Pausable {
+
+    /**
+     * @dev Address of sweep recipient.
+     */
+    address private _sweeper;
+
     /**
      * @dev Initializer that reserves 8.75 million RGT for liquidity mining and 1.25 million RGT to the team/advisors/etc.
      */
@@ -29,5 +35,24 @@ contract RariGovernanceToken is Initializable, ERC20, ERC20Detailed, ERC20Burnab
         ERC20Pausable.initialize(msg.sender);
         _mint(distributor, 8750000 * (10 ** uint256(decimals())));
         _mint(vesting, 1250000 * (10 ** uint256(decimals())));
+    }
+
+    /**
+     * @dev Migration function that sets the sweeper address for the contract. The migration can only be run once
+     * which is enforced using the value of the sweeper address. This function should be executed using `upgradeToAndCall`
+     * during the migration process.
+     */
+    function migration(address sweeper) public {
+        require(address(_sweeper) == address(0), "Sweeper is already initialized.");
+        require(address(sweeper) != address(0), "Sweeper cannot be the zero address.");
+        _sweeper = sweeper;
+    }
+
+    /**
+     * @dev Sweep transfers the current RGT token balance of the token contract to the configured recipient.
+     */
+    function sweep() public {
+        require(address(_sweeper) != address(0), "Sweeper cannot be the zero address.");
+        _transfer(address(this), _sweeper, balanceOf(address(this)));
     }
 }
