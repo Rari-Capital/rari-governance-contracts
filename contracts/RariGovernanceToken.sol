@@ -72,11 +72,9 @@ contract RariGovernanceToken is Initializable, ERC20, ERC20Detailed, ERC20Burnab
      * At no point in time should this contract hold any tokens.
      * @param erc20Contract The ERC20 contract address of the token to forward.
      * @param to The destination address to which the funds will be forwarded.
+     * @param amount Amount of tokens to forward.
      */
-    function sweepLostFunds(address erc20Contract, address to) external onlyPauser {
-        IERC20 token = IERC20(erc20Contract);
-        uint256 balance = token.balanceOf(address(this));
-        require(balance <= 0, "No tokens to forward.");
-        token.safeTransfer(to, balance);
+    function sweepLostFunds(address erc20Contract, address to, uint256 amount) external onlyPauser {
+        IERC20(erc20Contract).safeTransfer(to, amount);
     }
 }
