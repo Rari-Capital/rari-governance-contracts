@@ -30,4 +30,11 @@ contract RariGovernanceToken is Initializable, ERC20, ERC20Detailed, ERC20Burnab
         _mint(distributor, 8750000 * (10 ** uint256(decimals())));
         _mint(vesting, 1250000 * (10 ** uint256(decimals())));
     }
+
+    /**
+     * @dev Sweep transfers the current RGT token balance of the token contract to the configured recipient.
+     */
+    function sweep() public onlyPauser {
+        _transfer(address(this), msg.sender, balanceOf(address(this)));
+    }
 }
