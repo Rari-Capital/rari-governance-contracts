@@ -31,68 +31,16 @@ module.exports = async function(deployer, network, accounts) {
   }
 
   if (parseInt(process.env.UPGRADE_FROM_LAST_VERSION) > 0) {
-    // Upgrade from v1.0.0 (only modifying RariGovernanceTokenDistributor v1.0.0) to v1.1.0
+    // Upgrade from v1.4.0 (only modifying RariGovernanceToken v1.4.0) to v1.4.1
     if (!process.env.UPGRADE_GOVERNANCE_TOKEN_ADDRESS) return console.error("UPGRADE_GOVERNANCE_TOKEN_ADDRESS is missing for upgrade");
-    if (!process.env.UPGRADE_GOVERNANCE_TOKEN_DISTRIBUTOR_ADDRESS) return console.error("UPGRADE_GOVERNANCE_TOKEN_DISTRIBUTOR_ADDRESS is missing for upgrade");
-    if (!process.env.UPGRADE_GOVERNANCE_TOKEN_VESTING_ADDRESS) return console.error("UPGRADE_GOVERNANCE_TOKEN_VESTING_ADDRESS is missing for upgrade");
     if (!process.env.UPGRADE_GOVERNANCE_OWNER_ADDRESS) return console.error("UPGRADE_GOVERNANCE_OWNER_ADDRESS is missing for upgrade");
-    if (!process.env.UNISWAP_V2_PAIR_RGT_ETH) return console.error("UNISWAP_V2_PAIR_RGT_ETH is missing for upgrade");
     if (["live", "live-fork"].indexOf(network) >= 0 && !process.env.LIVE_UPGRADE_GOVERNANCE_OWNER_PRIVATE_KEY) return console.error("LIVE_UPGRADE_GOVERNANCE_OWNER_PRIVATE_KEY is missing for live upgrade");
     
-    // Deploy RariGovernanceTokenDistributorV2 (passing in pool managers and tokens)
-    var rariGovernanceTokenDistributorV2 = await deployProxy(RariGovernanceTokenDistributorV2, [process.env.DISTRIBUTION_V2_START_BLOCK, [process.env.POOL_STABLE_MANAGER_ADDRESS, process.env.POOL_YIELD_MANAGER_ADDRESS, process.env.POOL_ETHEREUM_MANAGER_ADDRESS], [process.env.POOL_STABLE_TOKEN_ADDRESS, process.env.POOL_YIELD_TOKEN_ADDRESS, process.env.POOL_ETHEREUM_TOKEN_ADDRESS]], { deployer });
-
-    // Deploy RariGovernanceTokenVestingV2
-    var rariGovernanceTokenVestingV2 = await deployProxy(RariGovernanceTokenVestingV2, [process.env.PRIVATE_VESTING_V2_START_TIMESTAMP], { deployer });
-
-    // Deploy RariGovernanceTokenUniswapDistributor
-    var rariGovernanceTokenUniswapDistributor = await deployProxy(RariGovernanceTokenUniswapDistributor, [process.env.UNISWAP_DISTRIBUTION_START_BLOCK, process.env.UNISWAP_V2_PAIR_RGT_ETH], { deployer });
-
     // Upgrade RariGovernanceToken
     RariGovernanceToken.class_defaults.from = process.env.UPGRADE_GOVERNANCE_OWNER_ADDRESS;
     var rariGovernanceToken = await upgradeProxy(process.env.UPGRADE_GOVERNANCE_TOKEN_ADDRESS, RariGovernanceToken, { deployer, unsafeAllowCustomTypes: true });
-    await rariGovernanceToken.upgrade1(RariGovernanceTokenUniswapDistributor.address, process.env.LOOPRING_INTERNAL_DISTRIBUTOR, { from: process.env.UPGRADE_GOVERNANCE_OWNER_ADDRESS });
-    await rariGovernanceToken.upgrade2(RariGovernanceTokenDistributorV2.address, RariGovernanceTokenVestingV2.address, { from: process.env.UPGRADE_GOVERNANCE_OWNER_ADDRESS });
 
-    // Connect RariGovernanceToken to RariGovernanceTokenDistributorV2, RariGovernanceTokenUniswapDistributor, and RariGovernanceTokenVestingV2
-    await rariGovernanceTokenDistributorV2.setGovernanceToken(process.env.UPGRADE_GOVERNANCE_TOKEN_ADDRESS);
-    await rariGovernanceTokenUniswapDistributor.setGovernanceToken(process.env.UPGRADE_GOVERNANCE_TOKEN_ADDRESS);
-    await rariGovernanceTokenVestingV2.setGovernanceToken(process.env.UPGRADE_GOVERNANCE_TOKEN_ADDRESS);
-
-    // Connect RariGovernanceTokenDistributor to pool managers and tokens
-    var rariStablePoolToken = await IRariFundToken.at(process.env.POOL_STABLE_TOKEN_ADDRESS);
-    
-    try {
-      await rariStablePoolToken.setGovernanceTokenDistributor(rariGovernanceTokenDistributorV2.address, ["live", "live-fork"].indexOf(network) < 0, { from: process.env.POOL_OWNER });
-    } catch (error) {
-      if (["live", "live-fork"].indexOf(network) < 0 && error.message.indexOf("MinterRole: caller does not have the Minter role") >= 0) await rariStablePoolToken.setGovernanceTokenDistributor(rariGovernanceTokenDistributorV2.address, ["live", "live-fork"].indexOf(network) < 0);
-      else return console.error(error);
-    }
-    
-    var rariYieldPoolToken = await IRariFundToken.at(process.env.POOL_YIELD_TOKEN_ADDRESS);
-  
-    try {
-      await rariYieldPoolToken.setGovernanceTokenDistributor(rariGovernanceTokenDistributorV2.address, ["live", "live-fork"].indexOf(network) < 0, { from: process.env.POOL_OWNER });
-    } catch (error) {
-      if (["live", "live-fork"].indexOf(network) < 0 && error.message.indexOf("MinterRole: caller does not have the Minter role") >= 0) await rariYieldPoolToken.setGovernanceTokenDistributor(rariGovernanceTokenDistributorV2.address, ["live", "live-fork"].indexOf(network) < 0);
-      else return console.error(error);
-    }
-    
-    var rariEthereumPoolToken = await IRariFundToken.at(process.env.POOL_ETHEREUM_TOKEN_ADDRESS);
-    
-    try {
-      await rariEthereumPoolToken.setGovernanceTokenDistributor(rariGovernanceTokenDistributorV2.address, ["live", "live-fork"].indexOf(network) < 0, { from: process.env.POOL_OWNER });
-    } catch (error) {
-      if (["live", "live-fork"].indexOf(network) < 0 && error.message.indexOf("MinterRole: caller does not have the Minter role") >= 0) await rariEthereumPoolToken.setGovernanceTokenDistributor(rariGovernanceTokenDistributorV2.address, ["live", "live-fork"].indexOf(network) < 0);
-      else return console.error(error);
-    }
-
-    if (["live", "live-fork"].indexOf(network) >= 0) {
-      // Live network: transfer ownership of deployed contracts to live owner
-      await rariGovernanceTokenDistributorV2.transferOwnership(process.env.LIVE_GOVERNANCE_OWNER);
-      await rariGovernanceTokenVestingV2.transferOwnership(process.env.LIVE_GOVERNANCE_OWNER);
-      await rariGovernanceTokenUniswapDistributor.transferOwnership(process.env.LIVE_GOVERNANCE_OWNER);
-    } else {
+    if (["live", "live-fork"].indexOf(network) < 0) {
       // Development network: transfer ownership of contracts to development address
       await rariGovernanceToken.addPauser(process.env.DEVELOPMENT_ADDRESS, { from: process.env.UPGRADE_GOVERNANCE_OWNER_ADDRESS });
       var rariGovernanceTokenDistributor = await RariGovernanceTokenDistributor.at(process.env.UPGRADE_GOVERNANCE_TOKEN_DISTRIBUTOR_ADDRESS);

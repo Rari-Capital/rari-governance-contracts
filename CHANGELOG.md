@@ -1,5 +1,9 @@
 # Changelog
 
+## `v1.4.1` (contracts deployed 2021-04-18; all code not yet pushed)
+
+* Added `RariGovernanceToken.sweepLostFunds` function.
+
 ## `v1.4.0` (contracts not yet deployed; all code not yet pushed)
 
 * Added minting of additional 10 million RGT.
