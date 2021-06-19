@@ -1,6 +1,6 @@
 # Changelog
 
-## `v1.4.0` (contracts not yet deployed; all code not yet pushed)
+## `v1.4.0` (contracts deployed 2021-02-16; all code not yet pushed)
 
 * Added minting of additional 10 million RGT.
 * Added distributions of 750,000 RGT for the first year of liquidity mining.
