@@ -35,7 +35,7 @@ Make sure to configure the following `.env` variables:
     PRIVATE_VESTING_V2_START_TIMESTAMP=1608793200
     LOOPRING_INTERNAL_DISTRIBUTOR=0x10dB6Bce3F2AE1589ec91A872213DAE59697967a
 
-The following `.env` variables must be configured for liquidity mining via the existing Rari Stable Pool `v2.4.0`, Yield Pool `v1.2.0`, and Ethereum Pool `v1.1.0`:
+The following `.env` variables must be configured for liquidity mining via the existing Rari Stable Pool `v2.6.0`, Yield Pool `v1.3.0`, and Ethereum Pool `v1.2.0`:
 
     POOL_OWNER=0x10dB6Bce3F2AE1589ec91A872213DAE59697967a
     POOL_STABLE_MANAGER_ADDRESS=0xC6BF8C8A55f77686720E0a88e2Fd1fEEF58ddf4a
@@ -47,21 +47,21 @@ The following `.env` variables must be configured for liquidity mining via the e
 
 In `.env`, set `DEVELOPMENT_ADDRESS=0x45D54B22582c79c8Fb8f4c4F2663ef54944f397a` to test deployment and also set `DEVELOPMENT_ADDRESS_SECONDARY=0x1Eeb75CFad36EDb6C996f7809f30952B0CA0B5B9` to run automated tests.
 
-If you are upgrading from `v1.3.0`, set `UPGRADE_FROM_LAST_VERSION=1` to enable upgrading and configure the following:
+If you are upgrading from `v1.4.1`, set `UPGRADE_FROM_LAST_VERSION=1` to enable upgrading and configure the following:
 
     UPGRADE_GOVERNANCE_TOKEN_ADDRESS=0xD291E7a03283640FDc51b121aC401383A46cC623
-    UPGRADE_GOVERNANCE_TOKEN_DISTRIBUTOR_ADDRESS=0x9C0CaEb986c003417D21A7Daaf30221d61FC1043
-    UPGRADE_GOVERNANCE_TOKEN_VESTING_ADDRESS=0xA54B473028f4ba881F1eD6B670af4103e8F9B98a
     UPGRADE_GOVERNANCE_OWNER_ADDRESS=0x10dB6Bce3F2AE1589ec91A872213DAE59697967a
-    UNISWAP_V2_PAIR_RGT_ETH=0xdc2b82bc1106c9c5286e59344896fb0ceb932f53
 
-Then, copy the OpenZeppelin artifacts for the official deployed `v1.3.0` contracts from `.openzeppelin/mainnet.json` to `.openzeppelin/unknown-1337.json`. If you decide to disable upgrading by setting restoring `UPGRADE_FROM_LAST_VERSION=0`, make sure to delete `.openzeppelin/unknown-1337.json`.
+Then, copy the OpenZeppelin artifacts for the official deployed `v1.4.1` contracts from `.openzeppelin/mainnet.json` to `.openzeppelin/unknown-1337.json`. If you decide to disable upgrading by setting restoring `UPGRADE_FROM_LAST_VERSION=0`, make sure to delete `.openzeppelin/unknown-1337.json`.
 
 To test the contracts, first fork the Ethereum mainnet. Begin by configuring `DEVELOPMENT_WEB3_PROVIDER_URL_TO_BE_FORKED` in `.env` (set to any mainnet Web3 HTTP provider JSON-RPC URL; we use a local `geth` instance, specifically a light client started with `geth --syncmode light --rpc --rpcapi eth,web3,debug,net`; Infura works too, but beware of latency and rate limiting). To start the fork, run `npm run ganache`. *If you would like to change the port, make sure to configure `scripts/ganache.js`, `scripts/test.sh`, `scripts/migrate-dev.sh`, and the `development` network in `truffle-config.js`.* Note that you will likely have to regularly restart your fork, especially when forking from a node without archive data or when using live 0x API responses to make currency exchanges.
 
 To deploy the contracts to your private mainnet fork, run `truffle migrate --network development --skip-dry-run --reset`. Alternatively, `npm run migrate-dev` will run Ganache and migrate the contracts in the same command.
 
-To run automated tests on the contracts on your private mainnet fork, run `npm test` (which runs Ganache in the background for you).
+To run automated tests on the contracts on your private mainnet fork, run `npm test` (which runs Ganache in the background for you). If you are upgrading from `v1.4.1`, you must also set the following variables in .env:
+
+    UPGRADE_GOVERNANCE_TOKEN_DISTRIBUTOR_ADDRESS=0x9C0CaEb986c003417D21A7Daaf30221d61FC1043
+    UPGRADE_GOVERNANCE_TOKEN_VESTING_ADDRESS=0xA54B473028f4ba881F1eD6B670af4103e8F9B98a
 
 As an alterative to manually configuring existing pool manager and token addresses, `npm test` and `npm migrate-dev` can automatically run Ganache and deploy the Rari Stable Pool, Yield Pool, and/or Ethereum Pool to the `development` network (and configure the pool manager and token addresses environment variables) before deploying Rari Governance if the following variables in `.env` are set: `DEVELOPMENT_POOL_STABLE_CONTRACTS_DIRECTORY`, `DEVELOPMENT_POOL_STABLE_CONTRACTS_DIRECTORY`, and/or `DEVELOPMENT_POOL_STABLE_CONTRACTS_DIRECTORY`.
 
@@ -78,7 +78,7 @@ Make sure to configure the following `.env` variables:
     PRIVATE_VESTING_V2_START_TIMESTAMP=1608793200
     LOOPRING_INTERNAL_DISTRIBUTOR=0x10dB6Bce3F2AE1589ec91A872213DAE59697967a
 
-The following `.env` variables must be configured for liquidity mining via the existing Rari Stable Pool `v2.4.0`, Yield Pool `v1.2.0`, and Ethereum Pool `v1.1.0`:
+The following `.env` variables must be configured for liquidity mining via the existing Rari Stable Pool `v2.6.0`, Yield Pool `v1.3.0`, and Ethereum Pool `v1.2.0`:
 
     POOL_OWNER=0x10dB6Bce3F2AE1589ec91A872213DAE59697967a
     POOL_STABLE_MANAGER_ADDRESS=0xC6BF8C8A55f77686720E0a88e2Fd1fEEF58ddf4a
@@ -90,13 +90,10 @@ The following `.env` variables must be configured for liquidity mining via the e
 
 In `.env`, configure `LIVE_DEPLOYER_ADDRESS`, `LIVE_DEPLOYER_PRIVATE_KEY`, `LIVE_WEB3_PROVIDER_URL`, `LIVE_GAS_PRICE` (ideally, use the "fast" price listed by [ETH Gas Station](https://www.ethgasstation.info/)), `LIVE_GOVERNANCE_OWNER`, and `LIVE_POOL_OWNER_PRIVATE_KEY` to deploy to the mainnet.
 
-If you are upgrading from `v1.3.0`, set `UPGRADE_FROM_LAST_VERSION=1` to enable upgrading and configure the following:
+If you are upgrading from `v1.4.1`, set `UPGRADE_FROM_LAST_VERSION=1` to enable upgrading and configure the following:
 
     UPGRADE_GOVERNANCE_TOKEN_ADDRESS=0xD291E7a03283640FDc51b121aC401383A46cC623
-    UPGRADE_GOVERNANCE_TOKEN_DISTRIBUTOR_ADDRESS=0x9C0CaEb986c003417D21A7Daaf30221d61FC1043
-    UPGRADE_GOVERNANCE_TOKEN_VESTING_ADDRESS=0xA54B473028f4ba881F1eD6B670af4103e8F9B98a
     UPGRADE_GOVERNANCE_OWNER_ADDRESS=0x10dB6Bce3F2AE1589ec91A872213DAE59697967a
-    UNISWAP_V2_PAIR_RGT_ETH=0xdc2b82bc1106c9c5286e59344896fb0ceb932f53
 
 You must also set `LIVE_UPGRADE_GOVERNANCE_OWNER_PRIVATE_KEY`.
 
