@@ -1,10 +1,14 @@
 # Changelog
 
+## `v2.0.0` (contracts not yet deployed; all code not yet pushed)
+
+* On-chain governance!
+
 ## `v1.4.1` (contracts deployed 2021-04-18; all code not yet pushed)
 
 * Added `RariGovernanceToken.sweepLostFunds` function.
 
-## `v1.4.0` (contracts not yet deployed; all code not yet pushed)
+## `v1.4.0` (contracts deployed 2021-02-16; all code not yet pushed)
 
 * Added minting of additional 10 million RGT.
 * Added distributions of 750,000 RGT for the first year of liquidity mining.
