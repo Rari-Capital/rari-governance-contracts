@@ -149,4 +149,12 @@ contract RariGovernanceTokenVesting is Initializable, Ownable {
     function upgrade(address newContract) external onlyOwner {
         rariGovernanceToken.transfer(newContract, rariGovernanceToken.balanceOf(address(this)));
     }
+
+    /**
+     * @notice Admin call to delegate this contract's RGT votes.
+     * @param delegatee The address to delegate votes to.
+     */
+    function delegate(address delegatee) external onlyOwner {
+        rariGovernanceToken.delegate(delegatee);
+    }
 }
