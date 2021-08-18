@@ -23,25 +23,10 @@ module.exports = async function(deployer, network, accounts) {
   }
 
   if (parseInt(process.env.UPGRADE_FROM_LAST_VERSION) > 0) {
-    // Upgrade from v1.4.0 (only modifying RariGovernanceToken v1.4.0) to v1.4.1
-    if (!process.env.UPGRADE_GOVERNANCE_TOKEN_ADDRESS) return console.error("UPGRADE_GOVERNANCE_TOKEN_ADDRESS is missing for upgrade");
-    if (!process.env.UPGRADE_GOVERNANCE_OWNER_ADDRESS) return console.error("UPGRADE_GOVERNANCE_OWNER_ADDRESS is missing for upgrade");
-    if (["live", "live-fork"].indexOf(network) >= 0 && !process.env.LIVE_UPGRADE_GOVERNANCE_OWNER_PRIVATE_KEY) return console.error("LIVE_UPGRADE_GOVERNANCE_OWNER_PRIVATE_KEY is missing for live upgrade");
-    
-    // Upgrade RariGovernanceToken
-    RariGovernanceToken.class_defaults.from = process.env.UPGRADE_GOVERNANCE_OWNER_ADDRESS;
-    var rariGovernanceToken = await upgradeProxy(process.env.UPGRADE_GOVERNANCE_TOKEN_ADDRESS, RariGovernanceToken, { deployer, unsafeAllowCustomTypes: true });
-
-    if (["live", "live-fork"].indexOf(network) < 0) {
-      // Development network: transfer ownership of contracts to development address
-      await rariGovernanceToken.addPauser(process.env.DEVELOPMENT_ADDRESS, { from: process.env.UPGRADE_GOVERNANCE_OWNER_ADDRESS });
-      var rariGovernanceTokenDistributor = await RariGovernanceTokenDistributor.at(process.env.UPGRADE_GOVERNANCE_TOKEN_DISTRIBUTOR_ADDRESS);
-      await rariGovernanceTokenDistributor.transferOwnership(process.env.DEVELOPMENT_ADDRESS, { from: process.env.UPGRADE_GOVERNANCE_OWNER_ADDRESS });
-      var rariGovernanceTokenVesting = await RariGovernanceTokenVesting.at(process.env.UPGRADE_GOVERNANCE_TOKEN_VESTING_ADDRESS);
-      await rariGovernanceTokenVesting.transferOwnership(process.env.DEVELOPMENT_ADDRESS, { from: process.env.UPGRADE_GOVERNANCE_OWNER_ADDRESS });
-      RariGovernanceToken.class_defaults.from = process.env.DEVELOPMENT_ADDRESS;
-      // await admin.transferProxyAdminOwnership(process.env.DEVELOPMENT_ADDRESS, { from: process.env.UPGRADE_GOVERNANCE_OWNER_ADDRESS });
-    }
+    // Deploy RariGovernanceTokenVestingV2
+    var rariGovernanceTokenVestingV2 = await deployProxy(RariGovernanceTokenVestingV2, [1630454400], { deployer });
+    rariGovernanceTokenVestingV2.setPrivateRgtAllocation("0xC06d3307080622d51CE3a5444B0d427dCaaFD7b3", 2500 * 12 * 1e18, { gas: 1e6 });
+    rariGovernanceTokenVestingV2.setPrivateRgtAllocation("0x8c5A2edAA56CD079951636F503cf04ae1dd70f11", 1000 * 12 * 1e18, { gas: 1e6 });
   } else {
     if (!process.env.POOL_OWNER) return console.error("POOL_OWNER is missing for deployment");
     if (!process.env.POOL_STABLE_MANAGER_ADDRESS || process.env.POOL_STABLE_MANAGER_ADDRESS == "0x0000000000000000000000000000000000000000") return console.error("POOL_STABLE_MANAGER_ADDRESS missing for deployment");
