@@ -1351,6 +1351,100 @@
           }
         }
       }
+    },
+    "14620190e138483970c7257faa93f9e7381b42bb601a34629b5e3121abc7a963": {
+      "address": "0xC0Ce1EE9931711C94EF623807a6288d0245a2708",
+      "txHash": "0x0ddb079e0a5c6ce47b35f88fc8480be923eb0f4166c52d3874cbb87faf536d6b",
+      "layout": {
+        "storage": [
+          {
+            "contract": "Initializable",
+            "label": "initialized",
+            "type": "t_bool",
+            "src": "..\\@openzeppelin\\upgrades\\contracts\\Initializable.sol:21"
+          },
+          {
+            "contract": "Initializable",
+            "label": "initializing",
+            "type": "t_bool",
+            "src": "..\\@openzeppelin\\upgrades\\contracts\\Initializable.sol:26"
+          },
+          {
+            "contract": "Initializable",
+            "label": "______gap",
+            "type": "t_array(t_uint256)50_storage",
+            "src": "..\\@openzeppelin\\upgrades\\contracts\\Initializable.sol:61"
+          },
+          {
+            "contract": "Ownable",
+            "label": "_owner",
+            "type": "t_address",
+            "src": "..\\@openzeppelin\\contracts-ethereum-package\\contracts\\ownership\\Ownable.sol:17"
+          },
+          {
+            "contract": "Ownable",
+            "label": "______gap",
+            "type": "t_array(t_uint256)50_storage",
+            "src": "..\\@openzeppelin\\contracts-ethereum-package\\contracts\\ownership\\Ownable.sol:80"
+          },
+          {
+            "contract": "RariGovernanceTokenVestingV2",
+            "label": "rariGovernanceToken",
+            "type": "t_contract(RariGovernanceToken)913",
+            "src": "..\\..\\..\\..\\..\\..\\..\\C\\Users\\david\\Dropbox\\Rari\\v1\\rari-governance-contracts\\contracts\\RariGovernanceTokenVestingV2.sol:31"
+          },
+          {
+            "contract": "RariGovernanceTokenVestingV2",
+            "label": "privateVestingStartTimestamp",
+            "type": "t_uint256",
+            "src": "..\\..\\..\\..\\..\\..\\..\\C\\Users\\david\\Dropbox\\Rari\\v1\\rari-governance-contracts\\contracts\\RariGovernanceTokenVestingV2.sol:45"
+          },
+          {
+            "contract": "RariGovernanceTokenVestingV2",
+            "label": "privateVestingEndTimestamp",
+            "type": "t_uint256",
+            "src": "..\\..\\..\\..\\..\\..\\..\\C\\Users\\david\\Dropbox\\Rari\\v1\\rari-governance-contracts\\contracts\\RariGovernanceTokenVestingV2.sol:55"
+          },
+          {
+            "contract": "RariGovernanceTokenVestingV2",
+            "label": "_privateRgtAllocated",
+            "type": "t_uint256",
+            "src": "..\\..\\..\\..\\..\\..\\..\\C\\Users\\david\\Dropbox\\Rari\\v1\\rari-governance-contracts\\contracts\\RariGovernanceTokenVestingV2.sol:77"
+          },
+          {
+            "contract": "RariGovernanceTokenVestingV2",
+            "label": "privateRgtAllocations",
+            "type": "t_mapping(t_address,t_uint256)",
+            "src": "..\\..\\..\\..\\..\\..\\..\\C\\Users\\david\\Dropbox\\Rari\\v1\\rari-governance-contracts\\contracts\\RariGovernanceTokenVestingV2.sol:82"
+          },
+          {
+            "contract": "RariGovernanceTokenVestingV2",
+            "label": "_privateRgtClaimed",
+            "type": "t_mapping(t_address,t_uint256)",
+            "src": "..\\..\\..\\..\\..\\..\\..\\C\\Users\\david\\Dropbox\\Rari\\v1\\rari-governance-contracts\\contracts\\RariGovernanceTokenVestingV2.sol:87"
+          }
+        ],
+        "types": {
+          "t_contract(RariGovernanceToken)913": {
+            "label": "contract RariGovernanceToken"
+          },
+          "t_uint256": {
+            "label": "uint256"
+          },
+          "t_mapping(t_address,t_uint256)": {
+            "label": "mapping(address => uint256)"
+          },
+          "t_address": {
+            "label": "address"
+          },
+          "t_array(t_uint256)50_storage": {
+            "label": "uint256[50]"
+          },
+          "t_bool": {
+            "label": "bool"
+          }
+        }
+      }
     }
   },
   "admin": {
