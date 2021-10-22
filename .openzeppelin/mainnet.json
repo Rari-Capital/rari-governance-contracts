@@ -1,5 +1,16 @@
 {
-  "manifestVersion": "3.1",
+  "manifestVersion": "3.2",
+  "admin": {
+    "address": "0x1c9aA54a013962C2444ECae06902F31D532c6AD3",
+    "txHash": "0x9fc8ec17553410c1c85d08548505f4010ebdcaa92119f5b49f940c6967184131"
+  },
+  "proxies": [
+    {
+      "address": "0x014b220912f6A9fCe68E82Fa6C2E603a7a78F436",
+      "txHash": "0x93fa4d63dbd56afa1ac2395a360cc0371d1c12d743239976b220b42e3a439096",
+      "kind": "transparent"
+    }
+  ],
   "impls": {
     "d0c3dbc52137d07cd0061e327b7b337faf8425678df00cb69ab0e8ceee77dee8": {
       "address": "0x68Ac6AdEeFDfBbD603BAD9Db0bB64A90DD2D51C2",
@@ -1660,10 +1671,112 @@
           }
         }
       }
+    },
+    "b0cfa0e4f54f55257d76602abfc32603dc6ad1df5f923f32aec296294cb8718a": {
+      "address": "0xdee8708c7aC420607DfCB572d69bAB603a566D79",
+      "txHash": "0xd79d9bd5bbc04e2007992b1199c19cf4f4b5988987469b146a5685ea0529a638",
+      "layout": {
+        "storage": [
+          {
+            "contract": "Initializable",
+            "label": "initialized",
+            "type": "t_bool",
+            "src": "..\\@openzeppelin\\upgrades\\contracts\\Initializable.sol:21"
+          },
+          {
+            "contract": "Initializable",
+            "label": "initializing",
+            "type": "t_bool",
+            "src": "..\\@openzeppelin\\upgrades\\contracts\\Initializable.sol:26"
+          },
+          {
+            "contract": "Initializable",
+            "label": "______gap",
+            "type": "t_array(t_uint256)50_storage",
+            "src": "..\\@openzeppelin\\upgrades\\contracts\\Initializable.sol:61"
+          },
+          {
+            "contract": "Ownable",
+            "label": "_owner",
+            "type": "t_address",
+            "src": "..\\@openzeppelin\\contracts-ethereum-package\\contracts\\ownership\\Ownable.sol:17"
+          },
+          {
+            "contract": "Ownable",
+            "label": "______gap",
+            "type": "t_array(t_uint256)50_storage",
+            "src": "..\\@openzeppelin\\contracts-ethereum-package\\contracts\\ownership\\Ownable.sol:80"
+          },
+          {
+            "contract": "RariGovernanceTokenVestingV3",
+            "label": "rariGovernanceToken",
+            "type": "t_contract(RariGovernanceToken)913",
+            "src": "..\\..\\..\\..\\..\\..\\..\\C\\Users\\david\\Dropbox\\Rari\\v1\\rari-governance-contracts\\contracts\\RariGovernanceTokenVestingV3.sol:33"
+          },
+          {
+            "contract": "RariGovernanceTokenVestingV3",
+            "label": "privateVestingStartTimestamp",
+            "type": "t_uint256",
+            "src": "..\\..\\..\\..\\..\\..\\..\\C\\Users\\david\\Dropbox\\Rari\\v1\\rari-governance-contracts\\contracts\\RariGovernanceTokenVestingV3.sol:47"
+          },
+          {
+            "contract": "RariGovernanceTokenVestingV3",
+            "label": "privateVestingCliffTimestamp",
+            "type": "t_uint256",
+            "src": "..\\..\\..\\..\\..\\..\\..\\C\\Users\\david\\Dropbox\\Rari\\v1\\rari-governance-contracts\\contracts\\RariGovernanceTokenVestingV3.sol:62"
+          },
+          {
+            "contract": "RariGovernanceTokenVestingV3",
+            "label": "privateVestingEndTimestamp",
+            "type": "t_uint256",
+            "src": "..\\..\\..\\..\\..\\..\\..\\C\\Users\\david\\Dropbox\\Rari\\v1\\rari-governance-contracts\\contracts\\RariGovernanceTokenVestingV3.sol:67"
+          },
+          {
+            "contract": "RariGovernanceTokenVestingV3",
+            "label": "finalPrivateRgtAllocation",
+            "type": "t_uint256",
+            "src": "..\\..\\..\\..\\..\\..\\..\\C\\Users\\david\\Dropbox\\Rari\\v1\\rari-governance-contracts\\contracts\\RariGovernanceTokenVestingV3.sol:84"
+          },
+          {
+            "contract": "RariGovernanceTokenVestingV3",
+            "label": "_privateRgtAllocated",
+            "type": "t_uint256",
+            "src": "..\\..\\..\\..\\..\\..\\..\\C\\Users\\david\\Dropbox\\Rari\\v1\\rari-governance-contracts\\contracts\\RariGovernanceTokenVestingV3.sol:89"
+          },
+          {
+            "contract": "RariGovernanceTokenVestingV3",
+            "label": "privateRgtAllocations",
+            "type": "t_mapping(t_address,t_uint256)",
+            "src": "..\\..\\..\\..\\..\\..\\..\\C\\Users\\david\\Dropbox\\Rari\\v1\\rari-governance-contracts\\contracts\\RariGovernanceTokenVestingV3.sol:94"
+          },
+          {
+            "contract": "RariGovernanceTokenVestingV3",
+            "label": "_privateRgtClaimed",
+            "type": "t_mapping(t_address,t_uint256)",
+            "src": "..\\..\\..\\..\\..\\..\\..\\C\\Users\\david\\Dropbox\\Rari\\v1\\rari-governance-contracts\\contracts\\RariGovernanceTokenVestingV3.sol:99"
+          }
+        ],
+        "types": {
+          "t_contract(RariGovernanceToken)913": {
+            "label": "contract RariGovernanceToken"
+          },
+          "t_uint256": {
+            "label": "uint256"
+          },
+          "t_mapping(t_address,t_uint256)": {
+            "label": "mapping(address => uint256)"
+          },
+          "t_address": {
+            "label": "address"
+          },
+          "t_array(t_uint256)50_storage": {
+            "label": "uint256[50]"
+          },
+          "t_bool": {
+            "label": "bool"
+          }
+        }
+      }
     }
-  },
-  "admin": {
-    "address": "0x1c9aA54a013962C2444ECae06902F31D532c6AD3",
-    "txHash": "0x9fc8ec17553410c1c85d08548505f4010ebdcaa92119f5b49f940c6967184131"
   }
 }
