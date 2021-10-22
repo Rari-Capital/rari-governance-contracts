@@ -6,6 +6,8 @@ import "@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/ERC20.sol
 import "@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/ERC20Detailed.sol";
 import "@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/ERC20Burnable.sol";
 import "@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/ERC20Pausable.sol";
+import "@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/SafeERC20.sol";
 
 /**
  * @title RariGovernanceToken
@@ -13,6 +15,8 @@ import "@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/ERC20Paus
  * @notice RariGovernanceToken is the contract behind the Rari Governance Token (RGT), an ERC20 token accounting for the ownership of Rari Stable Pool, Yield Pool, and Ethereum Pool.
  */
 contract RariGovernanceToken is Initializable, ERC20, ERC20Detailed, ERC20Burnable, ERC20Pausable {
+    using SafeERC20 for IERC20;
+
     /**
      * @dev Initializer that reserves 8.75 million RGT for liquidity mining and 1.25 million RGT to the team/advisors/etc.
      */
@@ -53,5 +57,16 @@ contract RariGovernanceToken is Initializable, ERC20, ERC20Detailed, ERC20Burnab
         _mint(distributorV2, 3000000 * (10 ** uint256(decimals())));
         _mint(vestingV2, 7000000 * (10 ** uint256(decimals())));
         upgraded2 = true;
+    }
+
+    /**
+     * @dev Forwards tokens accidentally sent to this contract to the specified address.
+     * At no point in time should this contract hold any tokens.
+     * @param erc20Contract The ERC20 contract address of the token to forward.
+     * @param to The destination address to which the funds will be forwarded.
+     * @param amount Amount of tokens to forward.
+     */
+    function sweepLostFunds(address erc20Contract, address to, uint256 amount) external onlyPauser {
+        IERC20(erc20Contract).safeTransfer(to, amount);
     }
 }
