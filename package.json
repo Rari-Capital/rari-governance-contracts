@@ -1,6 +1,6 @@
 {
   "name": "rari-governance-contracts",
-  "version": "1.4.1",
+  "version": "2.0.0",
   "description": "Smart contracts for the Rari Governance system.",
   "main": "truffle-config.js",
   "directories": {

@@ -1,5 +1,9 @@
 # Changelog
 
+## `v2.0.0` (contracts deployed 2021-07-20; all code pushed 2021-10-22)
+
+* On-chain governance!
+
 ## `v1.4.1` (contracts deployed 2021-04-18; all code pushed 2021-10-22)
 
 * Added `RariGovernanceToken.sweepLostFunds` function.
