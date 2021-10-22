@@ -24,9 +24,34 @@ contract RariGovernanceToken is Initializable, ERC20, ERC20Detailed, ERC20Burnab
     }
 
     /**
-     * @dev Sweep transfers the current RGT token balance of the token contract to the configured recipient.
+     * @dev Boolean indicating if this RariFundToken contract has been deployed at least `v1.4.0` or upgraded to at least `v1.4.0`.
      */
-    function sweep() public onlyPauser {
-        _transfer(address(this), msg.sender, balanceOf(address(this)));
+    bool private upgraded1;
+
+    /**
+     * @dev Boolean indicating if this RariFundToken contract has been deployed at least `v1.4.0` or upgraded to at least `v1.4.0`.
+     */
+    bool private upgraded2;
+
+    /**
+     * @dev Upgrades RariGovernanceToken from `v1.3.0` to `v1.4.0`.
+     */
+    function upgrade1(address uniswapDistributor, address loopringDistributor) external onlyPauser {
+        require(!upgraded1, "Already upgraded.");
+        uint256 exchangeLiquidityRewards = 568717819057309757517546;
+        uint256 uniswapRewards = exchangeLiquidityRewards.mul(80).div(100);
+        _mint(uniswapDistributor, uniswapRewards);
+        _mint(loopringDistributor, exchangeLiquidityRewards.sub(uniswapRewards));
+        upgraded1 = true;
+    }
+
+    /**
+     * @dev Upgrades RariGovernanceToken from `v1.3.0` to `v1.4.0`.
+     */
+    function upgrade2(address distributorV2, address vestingV2) external onlyPauser {
+        require(!upgraded2, "Already upgraded.");
+        _mint(distributorV2, 3000000 * (10 ** uint256(decimals())));
+        _mint(vestingV2, 7000000 * (10 ** uint256(decimals())));
+        upgraded2 = true;
     }
 }

@@ -683,6 +683,299 @@
           }
         }
       }
+    },
+    "c9e437fb493505710962ff40cc72c2a5026fc24e37466aeb997de0f1ffdaf92b": {
+      "address": "0x2197eCc5b1EA917ADcF02DcC4343b0e9B8A8C99c",
+      "txHash": "0x90f7c2c49e9c8bc31c0c55e2a4174d6fbea6e85d2322c1816c2899458149b8e1",
+      "layout": {
+        "storage": [
+          {
+            "contract": "Initializable",
+            "label": "initialized",
+            "type": "t_bool",
+            "src": "../@openzeppelin/upgrades/contracts/Initializable.sol:21"
+          },
+          {
+            "contract": "Initializable",
+            "label": "initializing",
+            "type": "t_bool",
+            "src": "../@openzeppelin/upgrades/contracts/Initializable.sol:26"
+          },
+          {
+            "contract": "Initializable",
+            "label": "______gap",
+            "type": "t_array(t_uint256)50_storage",
+            "src": "../@openzeppelin/upgrades/contracts/Initializable.sol:61"
+          },
+          {
+            "contract": "Ownable",
+            "label": "_owner",
+            "type": "t_address",
+            "src": "../@openzeppelin/contracts-ethereum-package/contracts/ownership/Ownable.sol:17"
+          },
+          {
+            "contract": "Ownable",
+            "label": "______gap",
+            "type": "t_array(t_uint256)50_storage",
+            "src": "../@openzeppelin/contracts-ethereum-package/contracts/ownership/Ownable.sol:80"
+          },
+          {
+            "contract": "RariGovernanceTokenUniswapDistributor",
+            "label": "disabled",
+            "type": "t_bool",
+            "src": "RariGovernanceTokenUniswapDistributor.sol:42"
+          },
+          {
+            "contract": "RariGovernanceTokenUniswapDistributor",
+            "label": "rariGovernanceToken",
+            "type": "t_contract(RariGovernanceToken)222",
+            "src": "RariGovernanceTokenUniswapDistributor.sol:74"
+          },
+          {
+            "contract": "RariGovernanceTokenUniswapDistributor",
+            "label": "distributionStartBlock",
+            "type": "t_uint256",
+            "src": "RariGovernanceTokenUniswapDistributor.sol:89"
+          },
+          {
+            "contract": "RariGovernanceTokenUniswapDistributor",
+            "label": "distributionEndBlock",
+            "type": "t_uint256",
+            "src": "RariGovernanceTokenUniswapDistributor.sol:94"
+          },
+          {
+            "contract": "RariGovernanceTokenUniswapDistributor",
+            "label": "totalStaked",
+            "type": "t_uint256",
+            "src": "RariGovernanceTokenUniswapDistributor.sol:120"
+          },
+          {
+            "contract": "RariGovernanceTokenUniswapDistributor",
+            "label": "stakingBalances",
+            "type": "t_mapping(t_address,t_uint256)",
+            "src": "RariGovernanceTokenUniswapDistributor.sol:125"
+          },
+          {
+            "contract": "RariGovernanceTokenUniswapDistributor",
+            "label": "_rgtPerLpTokenAtLastSpeedUpdate",
+            "type": "t_uint256",
+            "src": "RariGovernanceTokenUniswapDistributor.sol:168"
+          },
+          {
+            "contract": "RariGovernanceTokenUniswapDistributor",
+            "label": "_rgtDistributedAtLastSpeedUpdate",
+            "type": "t_uint256",
+            "src": "RariGovernanceTokenUniswapDistributor.sol:173"
+          },
+          {
+            "contract": "RariGovernanceTokenUniswapDistributor",
+            "label": "_rgtPerLpTokenAtLastDistribution",
+            "type": "t_mapping(t_address,t_uint256)",
+            "src": "RariGovernanceTokenUniswapDistributor.sol:178"
+          },
+          {
+            "contract": "RariGovernanceTokenUniswapDistributor",
+            "label": "_rgtDistributedByHolder",
+            "type": "t_mapping(t_address,t_uint256)",
+            "src": "RariGovernanceTokenUniswapDistributor.sol:221"
+          },
+          {
+            "contract": "RariGovernanceTokenUniswapDistributor",
+            "label": "_rgtClaimedByHolder",
+            "type": "t_mapping(t_address,t_uint256)",
+            "src": "RariGovernanceTokenUniswapDistributor.sol:226"
+          },
+          {
+            "contract": "RariGovernanceTokenUniswapDistributor",
+            "label": "rgtEthUniswapV2Pair",
+            "type": "t_contract(IERC20)4542",
+            "src": "RariGovernanceTokenUniswapDistributor.sol:331"
+          }
+        ],
+        "types": {
+          "t_bool": {
+            "label": "bool"
+          },
+          "t_contract(RariGovernanceToken)222": {
+            "label": "contract RariGovernanceToken"
+          },
+          "t_uint256": {
+            "label": "uint256"
+          },
+          "t_mapping(t_address,t_uint256)": {
+            "label": "mapping(address => uint256)"
+          },
+          "t_address": {
+            "label": "address"
+          },
+          "t_contract(IERC20)4542": {
+            "label": "contract IERC20"
+          },
+          "t_array(t_uint256)50_storage": {
+            "label": "uint256[50]"
+          }
+        }
+      }
+    },
+    "18c2035bb2973d985bc269a4d52adda07ac493158cd428147df3b84b9dc89006": {
+      "address": "0xe55835bdF0b99158975a61a3EF0f3C63027EA105",
+      "txHash": "0xcf3c1f40533be788f90c42c10c505d6aa6c9245fbf30a0bfa9c8c14bef0ec78c",
+      "layout": {
+        "storage": [
+          {
+            "contract": "Initializable",
+            "label": "initialized",
+            "type": "t_bool",
+            "src": "../@openzeppelin/upgrades/contracts/Initializable.sol:21"
+          },
+          {
+            "contract": "Initializable",
+            "label": "initializing",
+            "type": "t_bool",
+            "src": "../@openzeppelin/upgrades/contracts/Initializable.sol:26"
+          },
+          {
+            "contract": "Initializable",
+            "label": "______gap",
+            "type": "t_array(t_uint256)50_storage",
+            "src": "../@openzeppelin/upgrades/contracts/Initializable.sol:61"
+          },
+          {
+            "contract": "ERC20",
+            "label": "_balances",
+            "type": "t_mapping(t_address,t_uint256)",
+            "src": "../@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/ERC20.sol:36"
+          },
+          {
+            "contract": "ERC20",
+            "label": "_allowances",
+            "type": "t_mapping(t_address,t_mapping(t_address,t_uint256))",
+            "src": "../@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/ERC20.sol:38"
+          },
+          {
+            "contract": "ERC20",
+            "label": "_totalSupply",
+            "type": "t_uint256",
+            "src": "../@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/ERC20.sol:40"
+          },
+          {
+            "contract": "ERC20",
+            "label": "______gap",
+            "type": "t_array(t_uint256)50_storage",
+            "src": "../@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/ERC20.sol:233"
+          },
+          {
+            "contract": "ERC20Detailed",
+            "label": "_name",
+            "type": "t_string_storage",
+            "src": "../@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/ERC20Detailed.sol:10"
+          },
+          {
+            "contract": "ERC20Detailed",
+            "label": "_symbol",
+            "type": "t_string_storage",
+            "src": "../@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/ERC20Detailed.sol:11"
+          },
+          {
+            "contract": "ERC20Detailed",
+            "label": "_decimals",
+            "type": "t_uint8",
+            "src": "../@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/ERC20Detailed.sol:12"
+          },
+          {
+            "contract": "ERC20Detailed",
+            "label": "______gap",
+            "type": "t_array(t_uint256)50_storage",
+            "src": "../@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/ERC20Detailed.sol:56"
+          },
+          {
+            "contract": "ERC20Burnable",
+            "label": "______gap",
+            "type": "t_array(t_uint256)50_storage",
+            "src": "../@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/ERC20Burnable.sol:30"
+          },
+          {
+            "contract": "PauserRole",
+            "label": "_pausers",
+            "type": "t_struct(Role)3217_storage",
+            "src": "../@openzeppelin/contracts-ethereum-package/contracts/access/roles/PauserRole.sol:14"
+          },
+          {
+            "contract": "PauserRole",
+            "label": "______gap",
+            "type": "t_array(t_uint256)50_storage",
+            "src": "../@openzeppelin/contracts-ethereum-package/contracts/access/roles/PauserRole.sol:49"
+          },
+          {
+            "contract": "Pausable",
+            "label": "_paused",
+            "type": "t_bool",
+            "src": "../@openzeppelin/contracts-ethereum-package/contracts/lifecycle/Pausable.sol:28"
+          },
+          {
+            "contract": "Pausable",
+            "label": "______gap",
+            "type": "t_array(t_uint256)50_storage",
+            "src": "../@openzeppelin/contracts-ethereum-package/contracts/lifecycle/Pausable.sol:79"
+          },
+          {
+            "contract": "ERC20Pausable",
+            "label": "______gap",
+            "type": "t_array(t_uint256)50_storage",
+            "src": "../@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/ERC20Pausable.sol:40"
+          },
+          {
+            "contract": "RariGovernanceToken",
+            "label": "upgraded1",
+            "type": "t_bool",
+            "src": "RariGovernanceToken.sol:37"
+          },
+          {
+            "contract": "RariGovernanceToken",
+            "label": "upgraded2",
+            "type": "t_bool",
+            "src": "RariGovernanceToken.sol:42"
+          }
+        ],
+        "types": {
+          "t_bool": {
+            "label": "bool"
+          },
+          "t_array(t_uint256)50_storage": {
+            "label": "uint256[50]"
+          },
+          "t_uint256": {
+            "label": "uint256"
+          },
+          "t_struct(Role)3217_storage": {
+            "label": "struct Roles.Role",
+            "members": [
+              {
+                "label": "bearer",
+                "type": "t_mapping(t_address,t_bool)"
+              }
+            ]
+          },
+          "t_mapping(t_address,t_bool)": {
+            "label": "mapping(address => bool)"
+          },
+          "t_address": {
+            "label": "address"
+          },
+          "t_string_storage": {
+            "label": "string"
+          },
+          "t_uint8": {
+            "label": "uint8"
+          },
+          "t_mapping(t_address,t_uint256)": {
+            "label": "mapping(address => uint256)"
+          },
+          "t_mapping(t_address,t_mapping(t_address,t_uint256))": {
+            "label": "mapping(address => mapping(address => uint256))"
+          }
+        }
+      }
     }
   },
   "admin": {

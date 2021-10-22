@@ -1,81 +1,52 @@
 // SPDX-License-Identifier: MIT
 const RariGovernanceToken = artifacts.require("RariGovernanceToken");
-const RariGovernanceTokenDistributor = artifacts.require("RariGovernanceTokenDistributor");
+const RariGovernanceTokenDistributorV2 = artifacts.require("RariGovernanceTokenDistributorV2");
 const IRariFundManager = artifacts.require("IRariFundManager");
 const IRariFundToken = artifacts.require("IRariFundToken");
 const IERC20 = artifacts.require("IERC20");
 
-const DISTRIBUTION_PERIOD = 390000;
+const DISTRIBUTION_PERIOD = 6500 * 365;
+const FINAL_RGT_DISTRIBUTION = web3.utils.toBN(750000).mul(web3.utils.toBN(1e18));
 
 function getRgtDistributed(blockNumber) {
-  var startBlock = parseInt(process.env.DISTRIBUTION_START_BLOCK);
+  var startBlock = parseInt(process.env.DISTRIBUTION_V2_START_BLOCK);
   if (blockNumber <= startBlock) return web3.utils.toBN(0);
-  if (blockNumber >= startBlock + DISTRIBUTION_PERIOD) return web3.utils.toBN(8750000).mul(web3.utils.toBN(1e18));
+  if (blockNumber >= startBlock + DISTRIBUTION_PERIOD) return FINAL_RGT_DISTRIBUTION;
   var blocks = blockNumber - startBlock;
-  if (blocks < 6500 * 15)
-    return web3.utils.toBN(1e18).mul(web3.utils.toBN(blocks).pow(web3.utils.toBN(2))).divn(2730)
-      .add(web3.utils.toBN("1450000000000000000000").muln(blocks).divn(273));
-  if (blocks < 6500 * 30)
-    return web3.utils.toBN("14600000000000000000000").muln(blocks).divn(273)
-      .sub(web3.utils.toBN("2000000000000000000").mul(web3.utils.toBN(blocks).pow(web3.utils.toBN(2))).divn(17745))
-      .sub(web3.utils.toBN("1000000000000000000000000").divn(7));
-  if (blocks < 6500 * 45)
-    return web3.utils.toBN(1e18).mul(web3.utils.toBN(blocks).pow(web3.utils.toBN(2))).divn(35490)
-      .add(web3.utils.toBN("39250000000000000000000000").divn(7))
-      .sub(web3.utils.toBN("950000000000000000000").muln(blocks).divn(273));
-  return web3.utils.toBN(1e18).mul(web3.utils.toBN(blocks).pow(web3.utils.toBN(2))).divn(35490)
-    .add(web3.utils.toBN("34750000000000000000000000").divn(7))
-    .sub(web3.utils.toBN("50000000000000000000").muln(blocks).divn(39));
+  return FINAL_RGT_DISTRIBUTION.muln(blocks).divn(DISTRIBUTION_PERIOD);
 }
 
-function getPublicRgtClaimFee(blockNumber) {
-  var initialClaimFee = web3.utils.toBN(0.33e18);
-  if (blockNumber <= parseInt(process.env.DISTRIBUTION_START_BLOCK)) return initialClaimFee;
-  var distributionEndBlock = parseInt(process.env.DISTRIBUTION_START_BLOCK) + DISTRIBUTION_PERIOD;
-  if (blockNumber >= distributionEndBlock) return web3.utils.toBN(0);
-  return initialClaimFee.muln(distributionEndBlock - blockNumber).divn(DISTRIBUTION_PERIOD);
-}
-
-contract("RariGovernanceTokenDistributor", accounts => {
+contract("RariGovernanceTokenDistributorV2", accounts => {
   it("should have distributed the correct amount of tokens at each checkpoint", async () => {
-    let governanceTokenDistributorInstance = await (parseInt(process.env.UPGRADE_FROM_LAST_VERSION) > 0 ? RariGovernanceTokenDistributor.at(process.env.UPGRADE_GOVERNANCE_TOKEN_DISTRIBUTOR_ADDRESS) : RariGovernanceTokenDistributor.deployed());
+    let governanceTokenUniswapDistributorInstance = await RariGovernanceTokenDistributorV2.deployed();
 
     // Test Solidity and JS
-    assert((await governanceTokenDistributorInstance.getRgtDistributed.call(parseInt(process.env.DISTRIBUTION_START_BLOCK))).isZero());
-    assert(getRgtDistributed(parseInt(process.env.DISTRIBUTION_START_BLOCK)).isZero());
-
     for (const [blocks, expected] of [
-      [6500, "50000"],
-      [6500 * 15, "4000000"],
-      [6500 * (15 + 1), "4200000"],
-      [6500 * 30, "6000000"],
-      [6500 * (30 + 1), "6050000"],
-      [6500 * 45, "7000000"],
-      [6500 * (45 + 1), "7100000"]
+      [0, "0"],
+      [6500, "2054794520547945205479"],
+      [6500 * 30, "61643835616438356164383"],
+      [6500 * 365, "750000000000000000000000"],
     ]) {
-      var rgtExpected = web3.utils.toBN(expected).mul(web3.utils.toBN(1e18));
-      var rgtDistributedSolidity = await governanceTokenDistributorInstance.getRgtDistributed.call(parseInt(process.env.DISTRIBUTION_START_BLOCK) + blocks);
-      assert(rgtDistributedSolidity.gte(rgtExpected.muln(999999).divn(1000000)) && rgtDistributedSolidity.lte(rgtExpected.muln(1000001).divn(1000000)));
-      var rgtDistributedJs = getRgtDistributed(parseInt(process.env.DISTRIBUTION_START_BLOCK) + blocks);
-      assert(rgtDistributedJs.gte(rgtExpected.muln(999999).divn(1000000)) && rgtDistributedJs.lte(rgtExpected.muln(1000001).divn(1000000)));
+      var rgtExpected = web3.utils.toBN(expected);
+      var rgtDistributedSolidity = await governanceTokenUniswapDistributorInstance.getRgtDistributed.call(parseInt(process.env.UNISWAP_DISTRIBUTION_START_BLOCK) + blocks);
+      assert(rgtDistributedSolidity.eq(rgtExpected));
+      var rgtDistributedJs = getRgtDistributed(parseInt(process.env.UNISWAP_DISTRIBUTION_START_BLOCK) + blocks);
+      assert(rgtDistributedJs.eq(rgtExpected));
     }
-
-    assert((await governanceTokenDistributorInstance.getRgtDistributed.call(parseInt(process.env.DISTRIBUTION_START_BLOCK) + (6500 * 60))).eq(web3.utils.toBN("8750000").mul(web3.utils.toBN(1e18))));
-    assert(getRgtDistributed(parseInt(process.env.DISTRIBUTION_START_BLOCK) + (6500 * 60)).eq(web3.utils.toBN("8750000").mul(web3.utils.toBN(1e18))));
   });
 
   it("should distribute tokens evenly across pools", async () => {
     let governanceTokenInstance = await (parseInt(process.env.UPGRADE_FROM_LAST_VERSION) > 0 ? RariGovernanceToken.at(process.env.UPGRADE_GOVERNANCE_TOKEN_ADDRESS) : RariGovernanceToken.deployed());
-    let governanceTokenDistributorInstance = await (parseInt(process.env.UPGRADE_FROM_LAST_VERSION) > 0 ? RariGovernanceTokenDistributor.at(process.env.UPGRADE_GOVERNANCE_TOKEN_DISTRIBUTOR_ADDRESS) : RariGovernanceTokenDistributor.deployed());
+    let governanceTokenDistributorInstance = await RariGovernanceTokenDistributorV2.deployed();
     let stablePoolManagerInstance = await IRariFundManager.at(process.env.POOL_STABLE_MANAGER_ADDRESS);
     let stablePoolTokenInstance = await IRariFundToken.at(process.env.POOL_STABLE_TOKEN_ADDRESS);
     let yieldPoolManagerInstance = await IRariFundManager.at(process.env.POOL_YIELD_MANAGER_ADDRESS);
     let yieldPoolTokenInstance = await IRariFundToken.at(process.env.POOL_YIELD_TOKEN_ADDRESS);
     let ethereumPoolManagerInstance = await IRariFundManager.at(process.env.POOL_ETHEREUM_MANAGER_ADDRESS);
     let ethereumPoolTokenInstance = await IRariFundToken.at(process.env.POOL_ETHEREUM_TOKEN_ADDRESS);
-    
+
     // Connect RariGovernanceTokenDistributor to pool managers and tokens
-    await connectGovernanceTokenDistributorV1();
+    await connectGovernanceTokenDistributorV2();
 
     // Burn all RSPT, RYPT, and REPT
     await stablePoolTokenInstance.burn(await stablePoolTokenInstance.balanceOf.call(process.env.DEVELOPMENT_ADDRESS), { from: process.env.DEVELOPMENT_ADDRESS });
@@ -116,7 +87,6 @@ contract("RariGovernanceTokenDistributor", accounts => {
     await governanceTokenDistributorInstance.claimAllRgt({ from: process.env.DEVELOPMENT_ADDRESS });
     var rgtAfterClaim = await governanceTokenInstance.balanceOf.call(process.env.DEVELOPMENT_ADDRESS);
     var myClaimedRgt = rgtAfterClaim.sub(initialRgt);
-    myEstimatedRgt.isub(myEstimatedRgt.mul(getPublicRgtClaimFee(await web3.eth.getBlockNumber())).div(web3.utils.toBN(1e18)));
     assert(myClaimedRgt.gte(myEstimatedRgt.muln(99).divn(100)) && myClaimedRgt.lte(myEstimatedRgt.muln(102).divn(100)));
 
     // Make 100 transactions to simulate 100 blocks passing; calculate RGT distributed per RSPT during the 100-block period
@@ -135,7 +105,6 @@ contract("RariGovernanceTokenDistributor", accounts => {
     await governanceTokenDistributorInstance.claimAllRgt({ from: process.env.DEVELOPMENT_ADDRESS });
     var rgtAfterClaim = await governanceTokenInstance.balanceOf.call(process.env.DEVELOPMENT_ADDRESS);
     var myClaimedRgt = rgtAfterClaim.sub(initialRgt);
-    myEstimatedRgt.isub(myEstimatedRgt.mul(getPublicRgtClaimFee(await web3.eth.getBlockNumber())).div(web3.utils.toBN(1e18)));
     assert(myClaimedRgt.gte(myEstimatedRgt.muln(99).divn(100)) && myClaimedRgt.lte(myEstimatedRgt.muln(102).divn(100)));
 
     // Make 100 transactions to simulate 100 blocks passing; calculate RGT distributed per RSPT during the 100-block period
@@ -154,7 +123,6 @@ contract("RariGovernanceTokenDistributor", accounts => {
     await governanceTokenDistributorInstance.claimAllRgt({ from: process.env.DEVELOPMENT_ADDRESS_SECONDARY });
     var rgtAfterClaim = await governanceTokenInstance.balanceOf.call(process.env.DEVELOPMENT_ADDRESS_SECONDARY);
     var myClaimedRgt = rgtAfterClaim.sub(initialRgt);
-    myEstimatedRgt.isub(myEstimatedRgt.mul(getPublicRgtClaimFee(await web3.eth.getBlockNumber())).div(web3.utils.toBN(1e18)));
     assert(myClaimedRgt.gte(myEstimatedRgt.muln(99).divn(100)) && myClaimedRgt.lte(myEstimatedRgt.muln(105).divn(100)));
 
     // Make 100 transactions to simulate 100 blocks passing; calculate RGT distributed per RSPT during the 100-block period
@@ -174,7 +142,6 @@ contract("RariGovernanceTokenDistributor", accounts => {
     await governanceTokenDistributorInstance.claimAllRgt({ from: process.env.DEVELOPMENT_ADDRESS_SECONDARY });
     var rgtAfterClaim = await governanceTokenInstance.balanceOf.call(process.env.DEVELOPMENT_ADDRESS_SECONDARY);
     var myClaimedRgt = rgtAfterClaim.sub(initialRgt);
-    myEstimatedRgt.isub(myEstimatedRgt.mul(getPublicRgtClaimFee(await web3.eth.getBlockNumber())).div(web3.utils.toBN(1e18)));
     assert(myClaimedRgt.gte(myEstimatedRgt.muln(99).divn(100)) && myClaimedRgt.lte(myEstimatedRgt.muln(102).divn(100)));
   });
 });
@@ -196,32 +163,32 @@ async function pass100BlocksAndGetRgtPerRspt(stablePoolManagerInstance, yieldPoo
   return stablePoolRgtPerRspt;
 }
 
-async function connectGovernanceTokenDistributorV1() {
+async function connectGovernanceTokenDistributorV2() {
   // Connect RariGovernanceTokenDistributor to pool managers and tokens
   var rariStablePoolToken = await IRariFundToken.at(process.env.POOL_STABLE_TOKEN_ADDRESS);
 
   try {
-    await rariStablePoolToken.setGovernanceTokenDistributor(RariGovernanceTokenDistributor.address, true, { from: process.env.POOL_OWNER });
+    await rariStablePoolToken.setGovernanceTokenDistributor(RariGovernanceTokenDistributorV2.address, true, { from: process.env.POOL_OWNER });
   } catch (error) {
-    if (error.message.indexOf("MinterRole: caller does not have the Minter role") >= 0) await rariStablePoolToken.setGovernanceTokenDistributor(RariGovernanceTokenDistributor.address, true);
+    if (error.message.indexOf("MinterRole: caller does not have the Minter role") >= 0) await rariStablePoolToken.setGovernanceTokenDistributor(rariGovernanceTokenDistributorV2.address, true);
     else throw error;
   }
   
   var rariYieldPoolToken = await IRariFundToken.at(process.env.POOL_YIELD_TOKEN_ADDRESS);
 
   try {
-    await rariYieldPoolToken.setGovernanceTokenDistributor(RariGovernanceTokenDistributor.address, true, { from: process.env.POOL_OWNER });
+    await rariYieldPoolToken.setGovernanceTokenDistributor(RariGovernanceTokenDistributorV2.address, true, { from: process.env.POOL_OWNER });
   } catch (error) {
-    if (error.message.indexOf("MinterRole: caller does not have the Minter role") >= 0) await rariYieldPoolToken.setGovernanceTokenDistributor(RariGovernanceTokenDistributor.address, true);
+    if (error.message.indexOf("MinterRole: caller does not have the Minter role") >= 0) await rariYieldPoolToken.setGovernanceTokenDistributor(rariGovernanceTokenDistributorV2.address, true);
     else throw error;
   }
   
   var rariEthereumPoolToken = await IRariFundToken.at(process.env.POOL_ETHEREUM_TOKEN_ADDRESS);
   
   try {
-    await rariEthereumPoolToken.setGovernanceTokenDistributor(RariGovernanceTokenDistributor.address, true, { from: process.env.POOL_OWNER });
+    await rariEthereumPoolToken.setGovernanceTokenDistributor(RariGovernanceTokenDistributorV2.address, true, { from: process.env.POOL_OWNER });
   } catch (error) {
-    if (error.message.indexOf("MinterRole: caller does not have the Minter role") >= 0) await rariEthereumPoolToken.setGovernanceTokenDistributor(RariGovernanceTokenDistributor.address, true);
+    if (error.message.indexOf("MinterRole: caller does not have the Minter role") >= 0) await rariEthereumPoolToken.setGovernanceTokenDistributor(rariGovernanceTokenDistributorV2.address, true);
     else throw error;
   }
 }

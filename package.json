@@ -1,6 +1,6 @@
 {
   "name": "rari-governance-contracts",
-  "version": "1.3.0",
+  "version": "1.4.0",
   "description": "Smart contracts for the Rari Governance system.",
   "main": "truffle-config.js",
   "directories": {
@@ -27,7 +27,7 @@
   },
   "homepage": "https://github.com/Rari-Capital/rari-governance-contracts#readme",
   "devDependencies": {
-    "@openzeppelin/truffle-upgrades": "^1.1.0",
+    "@openzeppelin/truffle-upgrades": "^1.5.0",
     "@truffle/hdwallet-provider": "^1.0.36",
     "dotenv": "^8.2.0",
     "ganache-core": "^2.11.3-beta.0",
