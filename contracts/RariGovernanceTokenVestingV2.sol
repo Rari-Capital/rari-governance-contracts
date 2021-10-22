@@ -47,7 +47,7 @@ contract RariGovernanceTokenVestingV2 is Initializable, Ownable {
     /**
      * @notice Length in seconds of the distribution period.
      */
-    uint256 public constant PRIVATE_VESTING_PERIOD = 2.5 * 365 * 86400;
+    uint256 public constant PRIVATE_VESTING_PERIOD = 3 * 365 * 86400;
 
     /**
      * @notice Length in seconds of the distribution period.
@@ -69,7 +69,7 @@ contract RariGovernanceTokenVestingV2 is Initializable, Ownable {
     /**
      * @notice Total and final quantity of all RGT to be privately allocated.
      */
-    uint256 public constant FINAL_PRIVATE_RGT_ALLOCATION = 7000000e18;
+    uint256 public constant FINAL_PRIVATE_RGT_ALLOCATION = 42000e18;
 
     /**
      * @notice Current quantity of RGT that has been privately allocated.
@@ -143,10 +143,11 @@ contract RariGovernanceTokenVestingV2 is Initializable, Ownable {
     }
 
     /**
-     * @dev Forwards all RGT to a new RariGovernanceTokenVesting contract.
+     * @dev Forwards RGT to a new RariGovernanceTokenVesting contract.
      * @param newContract The new RariGovernanceTokenVesting contract.
+     * @param amount Amount of RGT to forward to the new contract.
      */
-    function upgrade(address newContract) external onlyOwner {
-        rariGovernanceToken.transfer(newContract, rariGovernanceToken.balanceOf(address(this)));
+    function upgrade(address newContract, uint256 amount) external onlyOwner {
+        rariGovernanceToken.transfer(newContract, amount);
     }
 }

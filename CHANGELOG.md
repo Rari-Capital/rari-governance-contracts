@@ -1,5 +1,9 @@
 # Changelog
 
+## `v2.0.1` (contracts deployed 2021-08-18; all code pushed 2021-10-22)
+
+* Added `RariGovernanceTokenVestingV2`.
+
 ## `v2.0.0` (contracts deployed 2021-07-20; all code pushed 2021-10-22)
 
 * On-chain governance!
