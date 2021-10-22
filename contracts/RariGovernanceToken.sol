@@ -42,7 +42,7 @@ contract RariGovernanceToken is Initializable, ERC20, ERC20Detailed, ERC20Burnab
      */
     function upgrade2() external onlyPauser {
         require(!upgraded2, "Already upgraded.");
-        _mint(msg.sender, 2600000 * (10 ** uint256(decimals())));
+        _mint(msg.sender, 2500000 * (10 ** uint256(decimals())));
         upgraded2 = true;
     }
 

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-const { deployProxy, upgradeProxy, admin } = require('@openzeppelin/truffle-upgrades');
+const { deployProxy, upgradeProxy, admin, prepareUpgrade } = require('@openzeppelin/truffle-upgrades');
 require('dotenv').config();
 
 var RariGovernanceToken = artifacts.require("RariGovernanceToken");
@@ -23,10 +23,8 @@ module.exports = async function(deployer, network, accounts) {
   }
 
   if (parseInt(process.env.UPGRADE_FROM_LAST_VERSION) > 0) {
-    // Deploy RariGovernanceTokenVestingV2
-    var rariGovernanceTokenVestingV2 = await deployProxy(RariGovernanceTokenVestingV2, [1630454400], { deployer });
-    rariGovernanceTokenVestingV2.setPrivateRgtAllocation("0xC06d3307080622d51CE3a5444B0d427dCaaFD7b3", 2500 * 12 * 1e18, { gas: 1e6 });
-    rariGovernanceTokenVestingV2.setPrivateRgtAllocation("0x8c5A2edAA56CD079951636F503cf04ae1dd70f11", 1000 * 12 * 1e18, { gas: 1e6 });
+    // Prepare upgrade for RariGovernanceToken
+    var rariGovernanceToken = await prepareUpgrade(process.env.UPGRADE_GOVERNANCE_TOKEN_ADDRESS, RariGovernanceToken, { deployer });
   } else {
     if (!process.env.POOL_OWNER) return console.error("POOL_OWNER is missing for deployment");
     if (!process.env.POOL_STABLE_MANAGER_ADDRESS || process.env.POOL_STABLE_MANAGER_ADDRESS == "0x0000000000000000000000000000000000000000") return console.error("POOL_STABLE_MANAGER_ADDRESS missing for deployment");
