@@ -1,6 +1,10 @@
 # Changelog
 
-## `v2.0.0` (contracts not yet deployed; all code not yet pushed)
+## `v2.0.1` (contracts deployed; all code pushed)
+
+* Added `RariGovernanceTokenVestingV2`.
+
+## `v2.0.0` (contracts deployed; all code pushed)
 
 * On-chain governance!
 
