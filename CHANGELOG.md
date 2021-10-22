@@ -1,5 +1,9 @@
 # Changelog
 
+## `v2.0.2` (contracts deployed; all code pushed)
+
+* Upgrade `RariGovernanceToken` to mint 2.5M additional RGT instead of 2.6M for [on-chain proposal #4](https://www.withtally.com/governance/rari/proposal/4).
+
 ## `v2.0.1` (contracts deployed; all code pushed)
 
 * Added `RariGovernanceTokenVestingV2`.
