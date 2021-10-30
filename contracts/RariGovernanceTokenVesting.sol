@@ -73,9 +73,9 @@ contract RariGovernanceTokenVesting is Initializable, Ownable {
             uint256 satelliteBalance = rariGovernanceToken.balanceOf(satellite);
 
             if (amount > satelliteBalance) {
-                require(rariGovernanceToken.transfer(address(satellite), amount.sub(satelliteBalance)), "Failed to transfer RGT to satellite.");
+                require(rariGovernanceToken.transfer(satellite, amount.sub(satelliteBalance)), "Failed to transfer RGT to satellite.");
             } else if (amount < satelliteBalance) {
-                require(rariGovernanceToken.transferFrom(address(satellite), address(this), satelliteBalance.sub(amount)), "Failed to transfer RGT from satellite.");
+                require(rariGovernanceToken.transferFrom(satellite, address(this), satelliteBalance.sub(amount)), "Failed to transfer RGT from satellite.");
             }
         }
     }
