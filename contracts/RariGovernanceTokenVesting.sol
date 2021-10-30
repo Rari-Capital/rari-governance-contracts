@@ -7,6 +7,7 @@ import "@openzeppelin/contracts-ethereum-package/contracts/ownership/Ownable.sol
 import "@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/IERC20.sol";
 
 import "./RariGovernanceToken.sol";
+import "./RariGovernanceTokenVestingSatellite.sol";
 
 /**
  * @title RariGovernanceTokenVesting
@@ -28,7 +29,7 @@ contract RariGovernanceTokenVesting is Initializable, Ownable {
     /**
      * @dev The RariGovernanceToken contract.
      */
-    RariGovernanceToken rariGovernanceToken;
+    RariGovernanceToken public rariGovernanceToken;
 
     /**
      * @dev Sets the RariGovernanceToken distributed by ths RariGovernanceTokenDistributor.
@@ -64,6 +65,19 @@ contract RariGovernanceTokenVesting is Initializable, Ownable {
         _privateRgtAllocated = _privateRgtAllocated.sub(privateRgtAllocations[holder]).add(amount);
         require(_privateRgtAllocated <= FINAL_PRIVATE_RGT_ALLOCATION, "Total RGT privately allocated cannot exceed the final private RGT allocation.");
         privateRgtAllocations[holder] = amount;
+
+        // Transfer RGT to/from satellite if user has satellite
+        address satellite = address(satellites[msg.sender]);
+
+        if (satellite != address(0)) {
+            uint256 satelliteBalance = rariGovernanceToken.balanceOf(satellite);
+
+            if (amount > satelliteBalance) {
+                require(rariGovernanceToken.transfer(address(satellite), amount.sub(satelliteBalance)), "Failed to transfer RGT to satellite.");
+            } else if (amount < satelliteBalance) {
+                require(rariGovernanceToken.transferFrom(address(satellite), address(this), satelliteBalance.sub(amount)), "Failed to transfer RGT from satellite.");
+            }
+        }
     }
 
     /**
@@ -118,7 +132,9 @@ contract RariGovernanceTokenVesting is Initializable, Ownable {
         uint256 burnRgt = amount.mul(getPrivateRgtClaimFee(block.timestamp)).div(1e18);
         uint256 transferRgt = amount.sub(burnRgt);
         _privateRgtClaimed[holder] = _privateRgtClaimed[holder].add(amount);
-        require(rariGovernanceToken.transfer(holder, transferRgt), "Failed to transfer RGT from vesting reserve.");
+        address satellite = address(satellites[msg.sender]);
+        if (satellite != address(0)) require(rariGovernanceToken.transferFrom(satellite, holder, transferRgt), "Failed to transfer RGT from vesting reserve satellite.");
+        else require(rariGovernanceToken.transfer(holder, transferRgt), "Failed to transfer RGT from vesting reserve.");
         rariGovernanceToken.burn(burnRgt);
         emit PrivateClaim(holder, amount, transferRgt, burnRgt);
     }
@@ -143,18 +159,36 @@ contract RariGovernanceTokenVesting is Initializable, Ownable {
     }
 
     /**
-     * @dev Forwards all RGT to a new RariGovernanceTokenVesting contract.
+     * @dev Forwards RGT to a new RariGovernanceTokenVesting contract.
      * @param newContract The new RariGovernanceTokenVesting contract.
+     * @param amount Amount of RGT to forward to the new contract.
      */
-    function upgrade(address newContract) external onlyOwner {
-        rariGovernanceToken.transfer(newContract, rariGovernanceToken.balanceOf(address(this)));
+    function upgrade(address newContract, uint256 amount) external onlyOwner {
+        rariGovernanceToken.transfer(newContract, amount);
     }
 
     /**
-     * @notice Admin call to delegate this contract's RGT votes.
+     * @notice Admin call to delegate the sender's RGT votes.
      * @param delegatee The address to delegate votes to.
      */
-    function delegate(address delegatee) external onlyOwner {
-        rariGovernanceToken.delegate(delegatee);
+    function delegate(address delegatee) external {
+        uint256 allocation = privateRgtAllocations[msg.sender];
+        require(allocation > 0, "No private RGT allocation to delegate.");
+        RariGovernanceTokenVestingSatellite satellite = satellites[msg.sender];
+
+        // Deploy satellite if it doesn't already exist
+        if (address(satellite) == address(0)) {
+            satellite = new RariGovernanceTokenVestingSatellite();
+            satellites[msg.sender] = satellite;
+            require(rariGovernanceToken.transfer(address(satellite), allocation), "Failed to transfer RGT to satellite.");
+        }
+
+        // Delegate!
+        satellite.delegate(delegatee);
     }
+
+    /**
+     * @dev Satellite addresses for each holder holding vested RGT for voting delegation.
+     */
+    mapping(address => RariGovernanceTokenVestingSatellite) public satellites;
 }
