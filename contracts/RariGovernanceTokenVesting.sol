@@ -157,6 +157,7 @@ contract RariGovernanceTokenVesting is Initializable, Ownable {
      * @param amount The amount of RGT to claim.
      */
     function claimPrivateRgt(uint256 amount) external {
+        require(amount > 0, "Amount to claim must be greater than 0.");
         uint256 unclaimedRgt = getUnclaimedPrivateRgt(msg.sender);
         require(amount <= unclaimedRgt, "This amount is greater than the unclaimed RGT allocated privately.");
         _claimPrivateRgt(msg.sender, amount);
