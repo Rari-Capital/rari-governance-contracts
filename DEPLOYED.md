@@ -38,6 +38,12 @@ Implementation contract: `0x2197eCc5b1EA917ADcF02DcC4343b0e9B8A8C99c`
 
 **v2.0.1**: `0x7fd9da386f01f83cef3ebc01e13c040428c47ada`
 
+### `RariGovernanceTokenVestingV3`
+
+`RariGovernanceTokenVestingV3` distributes private RGT (Rari Governance Token) allocations to team/advisors/etc. with a vesting schedule.
+
+**v2.0.3**: `0x014b220912f6a9fce68e82fa6c2e603a7a78f436`
+
 ## Older Versions
 
 ### `RariGovernanceToken`
