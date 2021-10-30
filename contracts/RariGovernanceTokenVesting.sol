@@ -178,7 +178,16 @@ contract RariGovernanceTokenVesting is Initializable, Ownable {
 
         // Deploy satellite if it doesn't already exist
         if (address(satellite) == address(0)) {
-            satellite = new RariGovernanceTokenVestingSatellite();
+            bytes memory creationCode = type(RariGovernanceTokenVestingSatellite).creationCode;
+            bytes32 salt = bytes32(bytes20(msg.sender));
+
+            assembly {
+                satellite := create2(0, add(creationCode, 32), mload(creationCode), salt)
+                if iszero(extcodesize(satellite)) {
+                    revert(0, "Failed to deploy satellite.")
+                }
+            }
+
             satellites[msg.sender] = satellite;
             require(rariGovernanceToken.transfer(address(satellite), allocation), "Failed to transfer RGT to satellite.");
         }
