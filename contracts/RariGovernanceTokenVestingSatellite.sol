@@ -13,19 +13,19 @@ contract RariGovernanceTokenVestingSatellite {
     /**
      * @dev The root RariGovernanceTokenVesting contract.
      */
-    address vesting;
+    address public vesting;
 
     /**
      * @dev The RariGovernanceToken contract.
      */
-    RariGovernanceToken rgt;
+    RariGovernanceToken public rgt;
 
     /**
      * @dev Constructor that sets the `RariGovernanceToken` and `RariGovernanceTokenVesting`.
      */
     constructor() public {
         vesting = msg.sender;
-        rgt = RariGovernanceTokenVesting(vesting).rariGovernanceToken();
+        rgt = RariGovernanceTokenVesting(msg.sender).rariGovernanceToken();
         rgt.approve(msg.sender, uint256(-1));
     }
 
