@@ -129,13 +129,26 @@ contract RariGovernanceTokenVesting is Initializable, Ownable {
      * @param amount The amount of RGT to claim.
      */
     function _claimPrivateRgt(address holder, uint256 amount) internal {
+        // Get amount to burn and amount to transfer
         uint256 burnRgt = amount.mul(getPrivateRgtClaimFee(block.timestamp)).div(1e18);
         uint256 transferRgt = amount.sub(burnRgt);
+
+        // Update RGT claimed by holder
         _privateRgtClaimed[holder] = _privateRgtClaimed[holder].add(amount);
+
+        // Check for satellite
         address satellite = address(satellites[msg.sender]);
-        if (satellite != address(0)) require(rariGovernanceToken.transferFrom(satellite, holder, transferRgt), "Failed to transfer RGT from vesting reserve satellite.");
-        else require(rariGovernanceToken.transfer(holder, transferRgt), "Failed to transfer RGT from vesting reserve.");
-        rariGovernanceToken.burn(burnRgt);
+
+        // Transfer and burn
+        if (satellite != address(0)) {
+            require(rariGovernanceToken.transferFrom(satellite, holder, transferRgt), "Failed to transfer RGT from vesting reserve satellite.");
+            rariGovernanceToken.burnFrom(satellite, burnRgt);
+        } else {
+            require(rariGovernanceToken.transfer(holder, transferRgt), "Failed to transfer RGT from vesting reserve.");
+            rariGovernanceToken.burn(burnRgt);
+        }
+
+        // Emit claim event
         emit PrivateClaim(holder, amount, transferRgt, burnRgt);
     }
 
