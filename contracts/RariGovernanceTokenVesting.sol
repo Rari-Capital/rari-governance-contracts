@@ -182,7 +182,8 @@ contract RariGovernanceTokenVesting is Initializable, Ownable {
     }
 
     /**
-     * @notice Admin call to delegate the sender's RGT votes.
+     * @notice Delegate the sender's RGT votes.
+     * @dev Deploys a satellite for delegation and transfers sender's RGT allocation to it if not already done.
      * @param delegatee The address to delegate votes to.
      */
     function delegate(address delegatee) external {
@@ -206,7 +207,7 @@ contract RariGovernanceTokenVesting is Initializable, Ownable {
             require(rariGovernanceToken.transfer(address(satellite), allocation), "Failed to transfer RGT to satellite.");
         }
 
-        // Delegate!
+        // Delegate satellite's RGT votes to `delegatee`
         satellite.delegate(delegatee);
     }
 
