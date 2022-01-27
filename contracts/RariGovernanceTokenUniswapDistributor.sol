@@ -88,12 +88,12 @@ contract RariGovernanceTokenUniswapDistributor is Initializable, Ownable {
     /**
      * @notice Length in blocks of the distribution period.
      */
-    uint256 public constant DISTRIBUTION_PERIOD = 6500 * 365 * 3;
+    uint256 public constant DISTRIBUTION_PERIOD = 6500 * 365;
 
     /**
      * @notice Total and final quantity of all RGT to be distributed by the end of the period.
      */
-    uint256 public constant FINAL_RGT_DISTRIBUTION = uint256(568717819057309757517546) * 80 / 100;
+    uint256 public constant FINAL_RGT_DISTRIBUTION = uint256(568717819057309757517546) * 80 / 100 / 3;
 
     /**
      * @notice Returns the amount of RGT earned via liquidity mining at the given `blockNumber`.
@@ -309,12 +309,13 @@ contract RariGovernanceTokenUniswapDistributor is Initializable, Ownable {
     }
 
     /**
-     * @dev Forwards all RGT to a new RariGovernanceTokenUniswapDistributor contract.
+     * @dev Forwards RGT to a new RariGovernanceTokenUniswapDistributor contract.
      * @param newContract The new RariGovernanceTokenUniswapDistributor contract.
+     * @param amount Amount of RGT to forward to the new contract.
      */
-    function upgrade(address newContract) external onlyOwner {
+    function upgrade(address newContract, uint256 amount) external onlyOwner {
         require(disabled, "This governance token distributor contract must be disabled before it can be upgraded.");
-        rariGovernanceToken.transfer(newContract, rariGovernanceToken.balanceOf(address(this)));
+        rariGovernanceToken.transfer(newContract, amount);
     }
 
     /**
