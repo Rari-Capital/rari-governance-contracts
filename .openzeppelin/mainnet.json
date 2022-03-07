@@ -1777,6 +1777,139 @@
           }
         }
       }
+    },
+    "9d173bad775d5543cf24d934280beff303202d358e85f2c80baf1aa9f3d0ef86": {
+      "address": "0x4650a83520be4f1e4cee726fdd169d37cea80525",
+      "txHash": "0x175a14db29228df80927901dd124cd167a078779c2d4cbeb05fbedfe092a7595",
+      "layout": {
+        "storage": [
+          {
+            "contract": "Initializable",
+            "label": "initialized",
+            "type": "t_bool",
+            "src": "..\\@openzeppelin\\upgrades\\contracts\\Initializable.sol:21"
+          },
+          {
+            "contract": "Initializable",
+            "label": "initializing",
+            "type": "t_bool",
+            "src": "..\\@openzeppelin\\upgrades\\contracts\\Initializable.sol:26"
+          },
+          {
+            "contract": "Initializable",
+            "label": "______gap",
+            "type": "t_array(t_uint256)50_storage",
+            "src": "..\\@openzeppelin\\upgrades\\contracts\\Initializable.sol:61"
+          },
+          {
+            "contract": "Ownable",
+            "label": "_owner",
+            "type": "t_address",
+            "src": "..\\@openzeppelin\\contracts-ethereum-package\\contracts\\ownership\\Ownable.sol:17"
+          },
+          {
+            "contract": "Ownable",
+            "label": "______gap",
+            "type": "t_array(t_uint256)50_storage",
+            "src": "..\\@openzeppelin\\contracts-ethereum-package\\contracts\\ownership\\Ownable.sol:80"
+          },
+          {
+            "contract": "RariGovernanceTokenUniswapDistributor",
+            "label": "disabled",
+            "type": "t_bool",
+            "src": "..\\project:\\contracts\\RariGovernanceTokenUniswapDistributor.sol:34"
+          },
+          {
+            "contract": "RariGovernanceTokenUniswapDistributor",
+            "label": "rariGovernanceToken",
+            "type": "t_contract(RariGovernanceToken)2685",
+            "src": "..\\project:\\contracts\\RariGovernanceTokenUniswapDistributor.sol:66"
+          },
+          {
+            "contract": "RariGovernanceTokenUniswapDistributor",
+            "label": "distributionStartBlock",
+            "type": "t_uint256",
+            "src": "..\\project:\\contracts\\RariGovernanceTokenUniswapDistributor.sol:81"
+          },
+          {
+            "contract": "RariGovernanceTokenUniswapDistributor",
+            "label": "distributionEndBlock",
+            "type": "t_uint256",
+            "src": "..\\project:\\contracts\\RariGovernanceTokenUniswapDistributor.sol:86"
+          },
+          {
+            "contract": "RariGovernanceTokenUniswapDistributor",
+            "label": "totalStaked",
+            "type": "t_uint256",
+            "src": "..\\project:\\contracts\\RariGovernanceTokenUniswapDistributor.sol:112"
+          },
+          {
+            "contract": "RariGovernanceTokenUniswapDistributor",
+            "label": "stakingBalances",
+            "type": "t_mapping(t_address,t_uint256)",
+            "src": "..\\project:\\contracts\\RariGovernanceTokenUniswapDistributor.sol:117"
+          },
+          {
+            "contract": "RariGovernanceTokenUniswapDistributor",
+            "label": "_rgtPerLpTokenAtLastSpeedUpdate",
+            "type": "t_uint256",
+            "src": "..\\project:\\contracts\\RariGovernanceTokenUniswapDistributor.sol:160"
+          },
+          {
+            "contract": "RariGovernanceTokenUniswapDistributor",
+            "label": "_rgtDistributedAtLastSpeedUpdate",
+            "type": "t_uint256",
+            "src": "..\\project:\\contracts\\RariGovernanceTokenUniswapDistributor.sol:165"
+          },
+          {
+            "contract": "RariGovernanceTokenUniswapDistributor",
+            "label": "_rgtPerLpTokenAtLastDistribution",
+            "type": "t_mapping(t_address,t_uint256)",
+            "src": "..\\project:\\contracts\\RariGovernanceTokenUniswapDistributor.sol:170"
+          },
+          {
+            "contract": "RariGovernanceTokenUniswapDistributor",
+            "label": "_rgtDistributedByHolder",
+            "type": "t_mapping(t_address,t_uint256)",
+            "src": "..\\project:\\contracts\\RariGovernanceTokenUniswapDistributor.sol:213"
+          },
+          {
+            "contract": "RariGovernanceTokenUniswapDistributor",
+            "label": "_rgtClaimedByHolder",
+            "type": "t_mapping(t_address,t_uint256)",
+            "src": "..\\project:\\contracts\\RariGovernanceTokenUniswapDistributor.sol:218"
+          },
+          {
+            "contract": "RariGovernanceTokenUniswapDistributor",
+            "label": "rgtEthUniswapV2Pair",
+            "type": "t_contract(IERC20)1407",
+            "src": "..\\project:\\contracts\\RariGovernanceTokenUniswapDistributor.sol:324"
+          }
+        ],
+        "types": {
+          "t_bool": {
+            "label": "bool"
+          },
+          "t_contract(RariGovernanceToken)2685": {
+            "label": "contract RariGovernanceToken"
+          },
+          "t_uint256": {
+            "label": "uint256"
+          },
+          "t_mapping(t_address,t_uint256)": {
+            "label": "mapping(address => uint256)"
+          },
+          "t_address": {
+            "label": "address"
+          },
+          "t_contract(IERC20)1407": {
+            "label": "contract IERC20"
+          },
+          "t_array(t_uint256)50_storage": {
+            "label": "uint256[50]"
+          }
+        }
+      }
     }
   }
 }
