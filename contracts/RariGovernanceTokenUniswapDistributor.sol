@@ -88,12 +88,12 @@ contract RariGovernanceTokenUniswapDistributor is Initializable, Ownable {
     /**
      * @notice Length in blocks of the distribution period.
      */
-    uint256 public constant DISTRIBUTION_PERIOD = 6500 * 365;
+    uint256 public constant DISTRIBUTION_PERIOD = 6500 * (365 + 30);
 
     /**
      * @notice Total and final quantity of all RGT to be distributed by the end of the period.
      */
-    uint256 public constant FINAL_RGT_DISTRIBUTION = uint256(568717819057309757517546) * 80 / 100 / 3;
+    uint256 public constant FINAL_RGT_DISTRIBUTION = uint256(568717819057309757517546) * 80 / 100 * (365 + 30) / (365 * 3);
 
     /**
      * @notice Returns the amount of RGT earned via liquidity mining at the given `blockNumber`.
