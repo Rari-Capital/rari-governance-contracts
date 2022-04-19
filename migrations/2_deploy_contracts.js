@@ -24,14 +24,13 @@ module.exports = async function(deployer, network, accounts) {
   }
 
   if (parseInt(process.env.UPGRADE_FROM_LAST_VERSION) > 0) {
-    // Deploy RariGovernanceTokenVestingV3
-    var rariGovernanceTokenVestingV3 = await deployProxy(RariGovernanceTokenVestingV3, [1635724800, web3.utils.toBN(100000).mul(web3.utils.toBN(1e18)).toString()], { deployer });
-
-    // Connect RariGovernanceToken to distributors and vesting contracts
-    await rariGovernanceTokenVestingV3.setGovernanceToken(RariGovernanceToken.address);
-
-    // Live network: transfer ownership of deployed contracts from the deployer to the owner
-    if (["live", "live-fork"].indexOf(network) >= 0) await rariGovernanceTokenVestingV3.transferOwnership(process.env.LIVE_GOVERNANCE_OWNER);
+    // Upgrade RariGovernanceTokenUniswapDistributor
+    await prepareUpgrade(process.env.UPGRADE_GOVERNANCE_TOKEN_SUSHISWAP_DISTRIBUTOR_ADDRESS, RariGovernanceTokenUniswapDistributor, { deployer });
+    // Need on-chain gov to call:
+    // ProxyAdmin.upgrade(RariGovernanceTokenUniswapDistributor, implementation)
+    // RariGovernanceTokenUniswapDistributor.setDisabled(true)
+    // RariGovernanceTokenUniswapDistributor.upgrade(Timelock, 568717819057309757517546 - (568717819057309757517546 * 80 / 100 / 3))
+    // RariGovernanceTokenUniswapDistributor.setDisabled(false)
   } else {
     if (!process.env.POOL_OWNER) return console.error("POOL_OWNER is missing for deployment");
     if (!process.env.POOL_STABLE_MANAGER_ADDRESS || process.env.POOL_STABLE_MANAGER_ADDRESS == "0x0000000000000000000000000000000000000000") return console.error("POOL_STABLE_MANAGER_ADDRESS missing for deployment");
