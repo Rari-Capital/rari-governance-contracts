@@ -241,12 +241,12 @@ contract RariGovernanceToken is Initializable, ERC20, ERC20Detailed, ERC20Burnab
     }
 
     function safe32(uint n, string memory errorMessage) internal pure returns (uint32) {
-        require(n < 2**32, errorMessage);
+        require(n < 1<<32, errorMessage);
         return uint32(n);
     }
 
     function safe96(uint n, string memory errorMessage) internal pure returns (uint96) {
-        require(n < 2**96, errorMessage);
+        require(n < 1<<96, errorMessage);
         return uint96(n);
     }
 
